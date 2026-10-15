@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bella Formula — БАДи та вітаміни з Італії</title>
+<meta name="description" content="Bella Formula: спортивне харчування та вітаміни з Італії. Склад, дозування, ціни. Замовлення в Telegram.">
+<meta property="og:title" content="Bella Formula — БАДи та вітаміни з Італії">
+<meta property="og:description" content="Каталог добавок з Італії: склад, дозування, ціни. Замовлення в Telegram.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🌿%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="#" id="brand"><span class="brand-mark">🌿</span><span><b>Bella Formula</b><small data-i="tagline"></small></span></a>
+    <nav class="top-nav">
+      <a class="pill ghost" id="tgChannel" href="https://t.me/bella_formula_italy" target="_blank" rel="noopener"></a>
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" data-lang="uk">UA</button><button type="button" data-lang="ru">RU</button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" id="app">
+  <section id="listView">
+    <div class="hero">
+      <h1 data-i="h1"></h1>
+      <p data-i="sub"></p>
+    </div>
+    <div class="tools">
+      <input id="q" type="search" autocomplete="off" data-ph="search">
+      <select id="sort" aria-label="sort"></select>
+    </div>
+    <div class="chips" id="chips" role="tablist"></div>
+    <div class="count" id="count"></div>
+    <div class="grid" id="grid"></div>
+    <p class="empty" id="empty" hidden data-i="empty"></p>
+  </section>
+
+  <section id="detailView" hidden></section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <p data-i="disclaimer"></p>
+    <p><a id="orderAny" href="https://t.me/AresLuminis" target="_blank" rel="noopener" data-i="ask"></a></p>
+  </div>
+</footer>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
