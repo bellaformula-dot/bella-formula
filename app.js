@@ -71,10 +71,11 @@ function famBlock(p){
 }
 function detail(id){
   var p=byId[id]; if(!p){location.hash='';return}
-  var d=L(p), ph=p.photos;
+  var d=L(p), ph=p.photos, N=p.strip?p.n:ph.length;
+  function bg(i){return 'background-image:url('+p.strip+');background-size:100% '+(N*100)+'%;background-position:0 '+(N>1?i*100/(N-1):0)+'%'}
   var comp=d.comp.map(function(x){return '<li>'+esc(x)+'</li>'}).join('');
-  var h='<button class="back" id="backBtn">'+t('back')+'</button><div class="detail"><div class="gal"><div class="main"><img id="mainImg" src="'+esc(ph[0])+'" alt="'+esc(d.name+' '+d.pack)+'"></div>'+
-   (ph.length>1?'<div class="thumbs">'+ph.map(function(s,i){return '<button type="button" data-i="'+i+'" aria-current="'+(i===0)+'" aria-label="'+t('ph')+' '+(i+1)+'"><img src="'+esc(s)+'" alt=""></button>'}).join('')+'</div>':'')+'</div>'+
+  var h='<button class="back" id="backBtn">'+t('back')+'</button><div class="detail"><div class="gal"><div class="main">'+(p.strip?'<div id="mainImg" class="fr" role="img" aria-label="'+esc(d.name+' '+d.pack)+'" style="'+bg(0)+'"></div>':'<img id="mainImg" src="'+esc(ph[0])+'" alt="'+esc(d.name+' '+d.pack)+'">')+'</div>'+
+   (N>1?'<div class="thumbs">'+Array.apply(null,Array(N)).map(function(_,i){return '<button type="button" data-i="'+i+'" aria-current="'+(i===0)+'" aria-label="'+t('ph')+' '+(i+1)+'">'+(p.strip?'<span class="fr" style="'+bg(i)+'"></span>':'<img src="'+esc(ph[i])+'" alt="">')+'</button>'}).join('')+'</div>':'')+'</div>'+
    '<div class="info"><span class="grp" style="color:var(--terra);font-weight:600;font-size:13px">'+esc(gname(p.group))+'</span><h2>'+esc(d.name)+'</h2><div class="pack">'+esc(d.pack)+' · '+t('from')+' 🇮🇹</div>'+
    '<div class="buyrow"><span class="price">'+p.price+' €</span><a class="pill" target="_blank" rel="noopener" href="'+buyUrl(p)+'">'+t('buy')+'</a></div>'+
    d.desc.map(function(x){return '<p>'+esc(x)+'</p>'}).join('')+
@@ -85,7 +86,7 @@ function detail(id){
   document.title=d.name+' — Bella Formula';
   window.scrollTo(0,0);
   $('#backBtn').onclick=function(){ if(history.length>1&&document.referrer.indexOf(location.host)>=0){history.back()}else{location.hash=''} };
-  v.querySelectorAll('.thumbs button').forEach(function(b){b.onclick=function(){var i=+b.getAttribute('data-i');$('#mainImg').src=ph[i];v.querySelectorAll('.thumbs button').forEach(function(x){x.setAttribute('aria-current',x===b)})}});
+  v.querySelectorAll('.thumbs button').forEach(function(b){b.onclick=function(){var i=+b.getAttribute('data-i');if(p.strip){$('#mainImg').setAttribute('style',bg(i))}else{$('#mainImg').src=ph[i]};v.querySelectorAll('.thumbs button').forEach(function(x){x.setAttribute('aria-current',x===b)})}});
 }
 function route(){
   var m=/^#p=(.+)$/.exec(location.hash);
