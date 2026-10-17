@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 var C=window.CATALOG, TG='https://t.me/AresLuminis';
-var F={cart:false,arrows:false}; /* переключатели функций */
+var F={cart:false,arrows:true}; /* переключатели функций */
 var T={
  uk:{tagline:'БАДи та вітаміни з Італії',h1:'Спортивне харчування та вітаміни з Італії',sub:'Склад, дозування й ціни — все на одній сторінці. Додайте товари в кошик і надішліть замовлення в Telegram одним натисканням.',
   buy:'Купити',search:'Пошук за назвою…',count:'Товарів',back:'← До каталогу',channel:'Telegram-канал',empty:'Нічого не знайдено. Спробуйте інший запит.',
