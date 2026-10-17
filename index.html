@@ -20,6 +20,7 @@
     <a class="brand" href="#" id="brand"><span class="brand-mark">🌿</span><span><b>Bella Formula</b><small data-i="tagline"></small></span></a>
     <nav class="top-nav">
       <a class="pill ghost" id="tgChannel" href="https://t.me/bella_formula_italy" target="_blank" rel="noopener"></a>
+      <button type="button" class="cartbtn" id="cartBtn">🛒<b id="cartN" hidden>0</b></button>
       <div class="lang" role="group" aria-label="Language">
         <button type="button" data-lang="uk">UA</button><button type="button" data-lang="ru">RU</button>
       </div>
@@ -37,7 +38,7 @@
       <input id="q" type="search" autocomplete="off" data-ph="search">
       <select id="sort" aria-label="sort"></select>
     </div>
-    <div class="chips" id="chips" role="tablist"></div>
+    <div class="catwrap" id="catWrap"></div>
     <div class="count" id="count"></div>
     <div class="grid" id="grid"></div>
     <p class="empty" id="empty" hidden data-i="empty"></p>
@@ -52,6 +53,12 @@
     <p><a id="orderAny" href="https://t.me/AresLuminis" target="_blank" rel="noopener" data-i="ask"></a></p>
   </div>
 </footer>
+<div class="veil" id="veil" hidden></div>
+<aside class="drawer" id="drawer" hidden aria-modal="true" role="dialog" aria-labelledby="drawerTitle">
+  <div class="dhead"><h3 id="drawerTitle"></h3><button type="button" id="drawerClose">✕</button></div>
+  <div class="dbody" id="drawerBody"></div>
+  <div class="dfoot" id="drawerFoot"></div>
+</aside>
 <script src="data.js"></script>
 <script src="app.js"></script>
 </body>
