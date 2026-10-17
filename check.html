@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Проверка картинок</title>
+<style>body{font:16px/1.5 system-ui,sans-serif;max-width:760px;margin:20px auto;padding:0 16px;background:#f6f1e8;color:#1f2a24}
+h1{font-size:22px}.ok{color:#1f7a45;font-weight:700}.bad{color:#c4302f;font-weight:700}
+table{border-collapse:collapse;width:100%;margin-top:12px;background:#fff}td,th{border:1px solid #ddd;padding:6px 8px;text-align:left;font-size:14px}
+.bar{height:10px;background:#ddd;border-radius:6px;overflow:hidden}.bar i{display:block;height:100%;background:#1f5a45;width:0}</style></head>
+<body><h1>Проверка картинок сайта</h1>
+<div class="bar"><i id="pb"></i></div><p id="sum">Проверяю…</p><div id="out"></div>
+<script src="data.js"></script>
+<script>
+var P=window.CATALOG.products, jobs=[];
+P.forEach(function(p){ jobs.push({id:p.id,name:p.ru.name+' '+p.ru.pack,kind:'фото карточки',url:p.photos[0]}); if(p.strip)jobs.push({id:p.id,name:p.ru.name+' '+p.ru.pack,kind:'галерея',url:p.strip}); });
+var done=0,bad=[];
+function fin(){document.getElementById('pb').style.width='100%';
+  var s=document.getElementById('sum');
+  s.innerHTML='Товаров: <b>'+P.length+'</b>, файлов проверено: <b>'+jobs.length+'</b>. '+(bad.length?'<span class="bad">Не найдено: '+bad.length+'</span>':'<span class="ok">Всё в порядке — битых картинок нет ✔</span>');
+  if(bad.length){var h='<table><tr><th>Товар</th><th>Что</th><th>Путь</th></tr>';bad.forEach(function(b){h+='<tr><td>'+b.name+'</td><td>'+b.kind+'</td><td>'+b.url+'</td></tr>'});document.getElementById('out').innerHTML=h+'</table>'}}
+function next(i){ if(i>=jobs.length)return; var j=jobs[i],im=new Image();
+  im.onload=function(){step()};im.onerror=function(){bad.push(j);step()};im.src=j.url+'?c='+Date.now();
+  function step(){done++;document.getElementById('pb').style.width=(done*100/jobs.length)+'%'; if(done===jobs.length)fin()}}
+var C=6; for(var k=0;k<C;k++){(function(k){ (function run(i){ if(i>=jobs.length)return; var j=jobs[i],im=new Image();
+  function step(){done++;document.getElementById('pb').style.width=(done*100/jobs.length)+'%'; if(done===jobs.length)fin(); else run(i+C)}
+  im.onload=step;im.onerror=function(){bad.push(j);step()};im.src=j.url+'?c='+Date.now(); })(k)})(k)}
+</script></body></html>
