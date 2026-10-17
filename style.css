@@ -176,3 +176,16 @@ body.lock{overflow:hidden}
 .lnk{border:0;background:none;color:var(--green);font:600 14px Inter,sans-serif;cursor:pointer;padding:8px 4px}
 @media(max-width:560px){.tools{flex-direction:column}}
 .cartbtn[hidden]{display:none}
+.fi{display:block;width:100%;margin:0 0 8px;font:inherit;font-size:16px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:12px;padding:11px 14px;min-height:46px}
+textarea.fi{resize:vertical;min-height:58px}
+.fi:focus{outline:2px solid var(--green);outline-offset:0}
+.err{color:var(--terra);font-size:14px;margin:0 0 8px}
+.err[hidden]{display:none}
+.pill.big[disabled]{opacity:.6;cursor:wait}
+.okbox{text-align:center;padding:48px 8px}
+.okic{font-size:56px}
+.okbox h4{font:700 24px Fraunces,Georgia,serif;margin:8px 0;text-transform:none;letter-spacing:0;color:var(--ink)}
+.okbox p{margin:0 0 10px}
+.okbox .pill{margin-top:16px}
+.dfoot{max-height:62vh;overflow:auto}
+a.lnk{text-decoration:none;display:inline-block}

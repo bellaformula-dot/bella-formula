@@ -2,6 +2,7 @@
 'use strict';
 var C=window.CATALOG, TG='https://t.me/AresLuminis';
 var F={cart:true,arrows:true}; /* переключатели функций */
+var ORDER_API='https://bf-orders.ironflagqaz.workers.dev'; /* адрес Cloudflare Worker; пусто = заказ через ссылку Telegram */
 var T={
  uk:{tagline:'БАДи та вітаміни з Італії',h1:'Спортивне харчування та вітаміни з Італії',sub:'Склад, дозування й ціни — все на одній сторінці. Додайте товари в кошик і надішліть замовлення в Telegram одним натисканням.',
   buy:'Купити',search:'Пошук за назвою…',count:'Товарів',back:'← До каталогу',channel:'Telegram-канал',empty:'Нічого не знайдено. Спробуйте інший запит.',
@@ -10,7 +11,8 @@ var T={
   disclaimer:'Харчові добавки не є лікарськими засобами. Не замінюють різноманітне харчування. Перед застосуванням проконсультуйтеся з лікарем. Зображення та склад — за даними виробника.',ask:'Питання та замовлення — у Telegram',from:'з Італії',ph:'Фото',
   cats:'Категорії',allCats:'Усі товари',allSub:'Усе в категорії',reset:'Скинути',add:'У кошик',cart:'Кошик',cartEmpty:'Кошик порожній. Додайте товари з каталогу.',total:'Разом',
   checkout:'Оформити замовлення в Telegram',copy:'Скопіювати замовлення',copied:'Скопійовано ✓',clear:'Очистити кошик',close:'Закрити',remove:'Видалити',
-  cartHint:'Відкриється чат Telegram із готовим повідомленням — залишиться натиснути «Надіслати».',longHint:'Замовлення велике: текст скопійовано, вставте його в чат Telegram.',
+  cartHint:'Відкриється чат Telegram із готовим повідомленням — залишиться натиснути «Надіслати».',
+  fName:'Ваше ім’я',fContact:'Телефон або @username у Telegram',fComment:'Коментар до замовлення (необов’язково)',send:'Надіслати замовлення',sending:'Надсилаємо…',needFields:'Вкажіть ім’я та телефон або @username — щоб ми могли зв’язатися.',errSend:'Не вдалося надіслати. Спробуйте ще раз або напишіть нам у Telegram.',okTitle:'Замовлення прийнято!',okText:'Ми підтвердимо наявність і суму та зв’яжемося з вами найближчим часом.',okNo:'Номер замовлення',okBtn:'Закрити',orTg:'Або напишіть у Telegram',sendHint:'Ми підтвердимо наявність і суму, а потім надішлемо реквізити для оплати.',longHint:'Замовлення велике: текст скопійовано, вставте його в чат Telegram.',
   orderHi:'Вітаю! Хочу замовити:',orderTotal:'Разом',orderSrc:'Замовлення з сайту Bella Formula',prev:'Попереднє фото',next:'Наступне фото',pcs:'шт.',items:'позицій'},
  ru:{tagline:'БАДы и витамины из Италии',h1:'Спортивное питание и витамины из Италии',sub:'Состав, дозировки и цены — всё на одной странице. Добавьте товары в корзину и отправьте заказ в Telegram одним нажатием.',
   buy:'Купить',search:'Поиск по названию…',count:'Товаров',back:'← В каталог',channel:'Telegram-канал',empty:'Ничего не найдено. Попробуйте другой запрос.',
@@ -19,7 +21,8 @@ var T={
   disclaimer:'Пищевые добавки не являются лекарственными средствами. Не заменяют разнообразное питание. Перед применением проконсультируйтесь с врачом. Изображения и состав — по данным производителя.',ask:'Вопросы и заказ — в Telegram',from:'из Италии',ph:'Фото',
   cats:'Категории',allCats:'Все товары',allSub:'Всё в категории',reset:'Сбросить',add:'В корзину',cart:'Корзина',cartEmpty:'Корзина пуста. Добавьте товары из каталога.',total:'Итого',
   checkout:'Оформить заказ в Telegram',copy:'Скопировать заказ',copied:'Скопировано ✓',clear:'Очистить корзину',close:'Закрыть',remove:'Удалить',
-  cartHint:'Откроется чат Telegram с готовым сообщением — останется нажать «Отправить».',longHint:'Заказ большой: текст скопирован, вставьте его в чат Telegram.',
+  cartHint:'Откроется чат Telegram с готовым сообщением — останется нажать «Отправить».',
+  fName:'Ваше имя',fContact:'Телефон или @username в Telegram',fComment:'Комментарий к заказу (необязательно)',send:'Отправить заказ',sending:'Отправляем…',needFields:'Укажите имя и телефон или @username — чтобы мы могли связаться.',errSend:'Не удалось отправить. Попробуйте ещё раз или напишите нам в Telegram.',okTitle:'Заказ принят!',okText:'Мы подтвердим наличие и сумму и свяжемся с вами в ближайшее время.',okNo:'Номер заказа',okBtn:'Закрыть',orTg:'Или напишите в Telegram',sendHint:'Мы подтвердим наличие и сумму, затем пришлём реквизиты для оплаты.',longHint:'Заказ большой: текст скопирован, вставьте его в чат Telegram.',
   orderHi:'Здравствуйте! Хочу заказать:',orderTotal:'Итого',orderSrc:'Заказ с сайта Bella Formula',prev:'Предыдущее фото',next:'Следующее фото',pcs:'шт.',items:'позиций'}
 };
 /* Категории верхнего уровня (как «терапевтические категории»); g — ключи подгрупп из data.js */
@@ -50,7 +53,7 @@ try{var raw=JSON.parse(localStorage.getItem('bf_cart')||'{}'); Object.keys(raw).
 function saveCart(){try{localStorage.setItem('bf_cart',JSON.stringify(cart))}catch(e){}}
 function cartN(){var n=0;for(var k in cart)n+=cart[k];return n}
 function cartSum(){var s=0;for(var k in cart)s+=cart[k]*byId[k].price;return s}
-function setQty(id,q){ if(q<=0)delete cart[id]; else cart[id]=Math.min(q,99); saveCart(); cartChanged() }
+function setQty(id,q){ pendingNo=null; if(q>0)done=null; if(q<=0)delete cart[id]; else cart[id]=Math.min(q,99); saveCart(); cartChanged() }
 function buyUrl(p){return TG+'?text='+encodeURIComponent(st.lang==='ru'?p.order_ru:p.order_uk)}
 function ctl(p){
   if(!F.cart)return '<a class="pill" target="_blank" rel="noopener" href="'+buyUrl(p)+'">'+t('buy')+'</a>';
@@ -70,6 +73,15 @@ function orderText(){
   lines.push(t('orderTotal')+': '+cartSum()+' €'); lines.push(''); lines.push(t('orderSrc'));
   return lines.join('\n');
 }
+function orderLines(){
+  var lines=[], i=0;
+  Object.keys(cart).forEach(function(id){var p=byId[id],d=L(p),q=cart[id]; i++;
+    lines.push(i+') '+d.name+', '+d.pack+' — '+q+' '+t('pcs')+' × '+p.price+' € = '+(q*p.price)+' €')});
+  return lines.join('\n');
+}
+function newOrderNo(){var d=new Date(),z=function(n){return ('0'+n).slice(-2)};return 'BF-'+z(d.getMonth()+1)+z(d.getDate())+'-'+z(d.getHours())+z(d.getMinutes())+'-'+Math.floor(100+Math.random()*900)}
+var form={name:'',contact:'',comment:''}, done=null, sending=false, pendingNo=null;
+try{var sf=JSON.parse(localStorage.getItem('bf_form')||'{}'); form.name=sf.name||''; form.contact=sf.contact||''}catch(e){}
 function copyText(s,done){
   function fb(){var a=document.createElement('textarea');a.value=s;a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.select();try{document.execCommand('copy')}catch(e){}document.body.removeChild(a);done&&done()}
   if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(s).then(function(){done&&done()},fb)}else fb();
@@ -78,6 +90,7 @@ function renderDrawer(){
   var ids=Object.keys(cart), box=$('#drawerBody'), foot=$('#drawerFoot');
   $('#drawerTitle').textContent='🛒 '+t('cart')+(ids.length?' · '+cartN():'');
   $('#drawerClose').setAttribute('aria-label',t('close'));
+  if(!ids.length&&done){box.innerHTML='<div class="okbox"><div class="okic">✅</div><h4>'+t('okTitle')+'</h4><p>'+t('okText')+'</p><p class="note">'+t('okNo')+': <b>'+esc(done.no)+'</b></p><button type="button" class="pill big" data-closecart>'+t('okBtn')+'</button></div>';foot.innerHTML='';return}
   if(!ids.length){box.innerHTML='<p class="empty">'+t('cartEmpty')+'</p>';foot.innerHTML='';return}
   box.innerHTML=ids.map(function(id){var p=byId[id],d=L(p),q=cart[id];
     return '<div class="ci"><a class="cth" href="#p='+esc(id)+'" data-closecart data-e="'+esc(p.emoji||'💊')+'"><img src="'+esc(p.photos[0])+'" alt=""></a>'+
@@ -85,13 +98,43 @@ function renderDrawer(){
      '<div class="cbot"><div class="step"><button type="button" data-dec="'+esc(id)+'" aria-label="−">−</button><span>'+q+'</span><button type="button" data-inc="'+esc(id)+'" aria-label="+">+</button></div>'+
      '<b class="cl">'+(q*p.price)+' €</b></div></div><button type="button" class="crm" data-rm="'+esc(id)+'" aria-label="'+t('remove')+'">✕</button></div>'}).join('');
   var text=orderText(), url=TG+'?text='+encodeURIComponent(text), long=url.length>1900;
+  if(ORDER_API){
+    foot.innerHTML='<div class="tot"><span>'+t('total')+'</span><b>'+cartSum()+' €</b></div>'+
+      '<form id="orderForm" novalidate><input class="fi" id="fName" autocomplete="name" maxlength="80" placeholder="'+esc(t('fName'))+'" value="'+esc(form.name)+'">'+
+      '<input class="fi" id="fContact" autocomplete="tel" maxlength="120" placeholder="'+esc(t('fContact'))+'" value="'+esc(form.contact)+'">'+
+      '<textarea class="fi" id="fComment" rows="2" maxlength="500" placeholder="'+esc(t('fComment'))+'">'+esc(form.comment)+'</textarea>'+
+      '<input type="text" id="fHp" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;opacity:0;height:0">'+
+      '<p class="err" id="formErr" hidden></p>'+
+      '<button type="submit" class="pill big" id="sendBtn"'+(sending?' disabled':'')+'>✈️ '+t(sending?'sending':'send')+'</button></form>'+
+      '<p class="note" id="cartNote">'+t('sendHint')+'</p>'+
+      '<div class="frow"><a class="lnk" id="goOrder" target="_blank" rel="noopener" href="'+(long?TG:esc(url))+'"'+(long?' data-long="1"':'')+'>'+t('orTg')+'</a><button type="button" class="lnk" id="clearCart">'+t('clear')+'</button></div>';
+    return;
+  }
   foot.innerHTML='<div class="tot"><span>'+t('total')+'</span><b>'+cartSum()+' €</b></div>'+
     '<a class="pill big" id="goOrder" target="_blank" rel="noopener" href="'+(long?TG:esc(url))+'"'+(long?' data-long="1"':'')+'>✈️ '+t('checkout')+'</a>'+
     '<p class="note" id="cartNote">'+t('cartHint')+'</p>'+
     '<div class="frow"><button type="button" class="lnk" id="copyOrder">'+t('copy')+'</button><button type="button" class="lnk" id="clearCart">'+t('clear')+'</button></div>';
 }
+function submitOrder(){
+  if(sending)return;
+  var n=$('#fName'),c=$('#fContact'),m=$('#fComment'),er=$('#formErr');
+  form.name=n.value.trim();form.contact=c.value.trim();form.comment=m.value.trim();
+  try{localStorage.setItem('bf_form',JSON.stringify({name:form.name,contact:form.contact}))}catch(e){}
+  if(form.name.length<2||form.contact.length<5){er.textContent=t('needFields');er.hidden=false;(form.name.length<2?n:c).focus();return}
+  if($('#fHp').value)return;
+  er.hidden=true; sending=true; renderDrawer();
+  var no=pendingNo||(pendingNo=newOrderNo()), total=cartSum();
+  var ctl=new AbortController(), to=setTimeout(function(){ctl.abort()},15000);
+  fetch(ORDER_API,{method:'POST',headers:{'Content-Type':'application/json'},signal:ctl.signal,
+    body:JSON.stringify({order_no:no,name:form.name,contact:form.contact,comment:form.comment,lang:st.lang,total:total,text:orderLines(),hp:''})})
+  .then(function(r){return r.json().catch(function(){return {ok:false}})})
+  .then(function(j){ clearTimeout(to); sending=false;
+    if(j&&j.ok){pendingNo=null;done={no:no};cart={};form.comment='';saveCart();cartChanged();renderDrawer()}
+    else{renderDrawer();var e2=$('#formErr');if(e2){e2.textContent=t('errSend');e2.hidden=false}}})
+  .catch(function(){ clearTimeout(to); sending=false; renderDrawer(); var e2=$('#formErr');if(e2){e2.textContent=t('errSend');e2.hidden=false}});
+}
 function openCart(){renderDrawer();$('#drawer').hidden=false;$('#veil').hidden=false;document.body.classList.add('lock');requestAnimationFrame(function(){$('#drawer').classList.add('on')})}
-function closeCart(){$('#drawer').classList.remove('on');$('#veil').hidden=true;document.body.classList.remove('lock');setTimeout(function(){if(!$('#drawer').classList.contains('on'))$('#drawer').hidden=true},220)}
+function closeCart(){done=null;$('#drawer').classList.remove('on');$('#veil').hidden=true;document.body.classList.remove('lock');setTimeout(function(){if(!$('#drawer').classList.contains('on'))$('#drawer').hidden=true},220)}
 
 /* ---------- КАТЕГОРИИ ---------- */
 function counts(){var c={all:C.products.length,cat:{}};C.products.forEach(function(p){c[p.group]=(c[p.group]||0)+1;var k=catOf[p.group].k;c.cat[k]=(c.cat[k]||0)+1});return c}
@@ -228,6 +271,8 @@ document.addEventListener('click',function(e){
   if(st.open&&!el.closest('#catWrap')){st.open=false;catbar()}
   var l=el.closest('.lang button'); if(l){st.lang=l.getAttribute('data-lang');try{localStorage.setItem('bf_lang',st.lang)}catch(x){} all()}
 });
+document.addEventListener('submit',function(e){if(e.target.id==='orderForm'){e.preventDefault();submitOrder()}});
+document.addEventListener('input',function(e){var i=e.target.id; if(i==='fName')form.name=e.target.value; else if(i==='fContact')form.contact=e.target.value; else if(i==='fComment')form.comment=e.target.value});
 $('#q').addEventListener('input',function(e){st.q=e.target.value;list()});
 $('#sort').addEventListener('change',function(e){st.sort=e.target.value;list()});
 $('#brand').addEventListener('click',function(e){e.preventDefault();location.hash='';window.scrollTo(0,0)});
