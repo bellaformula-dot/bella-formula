@@ -13,7 +13,7 @@ var T={
   checkout:'Оформити замовлення в Telegram',copy:'Скопіювати замовлення',copied:'Скопійовано ✓',clear:'Очистити кошик',close:'Закрити',remove:'Видалити',
   cartHint:'Відкриється чат Telegram із готовим повідомленням — залишиться натиснути «Надіслати».',
   fName:'Ваше ім’я',fContact:'Телефон або @username у Telegram',fComment:'Коментар до замовлення (необов’язково)',send:'Надіслати замовлення',sending:'Надсилаємо…',needFields:'Вкажіть ім’я та телефон або @username — щоб ми могли зв’язатися.',errSend:'Не вдалося надіслати. Спробуйте ще раз або напишіть нам у Telegram.',okTitle:'Замовлення прийнято!',okText:'Ми підтвердимо наявність і суму та зв’яжемося з вами найближчим часом.',okNo:'Номер замовлення',okBtn:'Закрити',orTg:'Або напишіть у Telegram',sendHint:'Ми підтвердимо наявність і суму, а потім надішлемо реквізити для оплати.',longHint:'Замовлення велике: текст скопійовано, вставте його в чат Telegram.',
-  orderHi:'Вітаю! Хочу замовити:',orderTotal:'Разом',orderSrc:'Замовлення з сайту Bella Formula',prev:'Попереднє фото',next:'Наступне фото',pcs:'шт.',items:'позицій'},
+  orderHi:'Вітаю! Хочу замовити:',orderTotal:'Разом',orderSrc:'Замовлення з сайту Bella Formula',prev:'Попереднє фото',next:'Наступне фото',pcs:'шт.',items:'позицій',guide:'Про товари',gTitle:'Про товари: що це і для чого',gSub:'Докладні статті про добавки, вітаміни та мінерали — для чого потрібні, кому підходять, як приймати і на що звернути увагу.',gSearch:'Пошук статті…',gAll:'Усі теми',gBack:'← До статей',gRelated:'Товари за темою',gRead:'Читати про це',gEmpty:'Статей не знайдено.',gLoading:'Завантаження…',gErr:'Не вдалося завантажити статтю. Оновіть сторінку.',gCount:'Статей',gMore:'Читати →'},
  ru:{tagline:'БАДы и витамины из Италии',h1:'Спортивное питание и витамины из Италии',sub:'Состав, дозировки и цены — всё на одной странице. Добавьте товары в корзину и отправьте заказ в Telegram одним нажатием.',
   buy:'Купить',search:'Поиск по названию…',count:'Товаров',back:'← В каталог',channel:'Telegram-канал',empty:'Ничего не найдено. Попробуйте другой запрос.',
   sortDef:'По умолчанию',sortAsc:'Сначала дешевле',sortDesc:'Сначала дороже',comp:'Состав',how:'Как принимать',warn:'Предупреждения',pack:'Сравнение упаковок',perDay:'в день',rec:'самая выгодная',cur:'эта',
@@ -23,7 +23,7 @@ var T={
   checkout:'Оформить заказ в Telegram',copy:'Скопировать заказ',copied:'Скопировано ✓',clear:'Очистить корзину',close:'Закрыть',remove:'Удалить',
   cartHint:'Откроется чат Telegram с готовым сообщением — останется нажать «Отправить».',
   fName:'Ваше имя',fContact:'Телефон или @username в Telegram',fComment:'Комментарий к заказу (необязательно)',send:'Отправить заказ',sending:'Отправляем…',needFields:'Укажите имя и телефон или @username — чтобы мы могли связаться.',errSend:'Не удалось отправить. Попробуйте ещё раз или напишите нам в Telegram.',okTitle:'Заказ принят!',okText:'Мы подтвердим наличие и сумму и свяжемся с вами в ближайшее время.',okNo:'Номер заказа',okBtn:'Закрыть',orTg:'Или напишите в Telegram',sendHint:'Мы подтвердим наличие и сумму, затем пришлём реквизиты для оплаты.',longHint:'Заказ большой: текст скопирован, вставьте его в чат Telegram.',
-  orderHi:'Здравствуйте! Хочу заказать:',orderTotal:'Итого',orderSrc:'Заказ с сайта Bella Formula',prev:'Предыдущее фото',next:'Следующее фото',pcs:'шт.',items:'позиций'}
+  orderHi:'Здравствуйте! Хочу заказать:',orderTotal:'Итого',orderSrc:'Заказ с сайта Bella Formula',prev:'Предыдущее фото',next:'Следующее фото',pcs:'шт.',items:'позиций',guide:'О товарах',gTitle:'О товарах: что это и для чего',gSub:'Подробные статьи о добавках, витаминах и минералах — для чего нужны, кому подходят, как принимать и на что обратить внимание.',gSearch:'Поиск статьи…',gAll:'Все темы',gBack:'← К статьям',gRelated:'Товары по теме',gRead:'Читать об этом',gEmpty:'Статей не найдено.',gLoading:'Загрузка…',gErr:'Не удалось загрузить статью. Обновите страницу.',gCount:'Статей',gMore:'Читать →'}
 };
 /* Категории верхнего уровня (как «терапевтические категории»); g — ключи подгрупп из data.js */
 var CATS=[
@@ -32,7 +32,7 @@ var CATS=[
  {k:'cla',g:['cla']},{k:'om',g:['om']},{k:'vit',g:['vit']},{k:'min',g:['min']},{k:'ant',g:['ant']},
  {k:'mush',g:['mush']},{k:'herb',g:['herb']},{k:'jnt',g:['jnt']},{k:'brain',g:['brain']},{k:'gut',g:['gut']},{k:'phi',g:['phi']}
 ];
-var st={lang:'uk',cat:'all',group:'all',q:'',sort:'def',open:false};
+var st={lang:'uk',cat:'all',group:'all',q:'',sort:'def',open:false,gcat:'all',gq:''};
 try{var sl=localStorage.getItem('bf_lang'); if(sl==='uk'||sl==='ru') st.lang=sl; else if(/^ru/i.test(navigator.language||'')) st.lang='ru';}catch(e){}
 var $=function(s){return document.querySelector(s)};
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
@@ -208,11 +208,11 @@ function detail(id,noStrip){
    (N>1?'<div class="thumbs">'+Array.apply(null,Array(N)).map(function(_,i){return '<button type="button" data-i="'+i+'" aria-current="'+(i===0)+'" aria-label="'+t('ph')+' '+(i+1)+'">'+(strip?'<span class="fr" style="'+bg(i)+'"></span>':'<img src="'+esc(ph[i])+'" alt="">')+'</button>'}).join('')+'</div>':'')+'</div>'+
    '<div class="info"><span class="grp" style="color:var(--terra);font-weight:600;font-size:13px">'+esc(gname(p.group))+'</span><h2>'+esc(d.name)+'</h2><div class="pack">'+esc(d.pack)+' · '+t('from')+' 🇮🇹</div>'+
    '<div class="buyrow"><span class="price">'+p.price+' €</span><span class="ctl big" data-ctl="'+esc(p.id)+'">'+ctl(p)+'</span></div>'+
-   d.desc.map(function(x){return '<p>'+esc(x)+'</p>'}).join('')+
+   d.desc.map(function(x){return '<p>'+esc(x)+'</p>'}).join('')+guideLinks(p)+
    '<div class="block"><h4>'+t('comp')+(d.comp_title?' — '+esc(d.comp_title.replace(/^(Склад|Состав)\s*/,'')):'')+'</h4><ul class="comp">'+comp+'</ul></div>'+
    '<div class="block"><h4>'+t('how')+'</h4><p>'+esc(d.how)+'</p>'+d.notes.map(function(x){return '<p class="note">'+esc(x)+'</p>'}).join('')+(p.weeks?'<p class="note">🗓 '+t('weeks')+': '+p.weeks+' '+t('packs')+' = '+(p.weeks*p.price)+' €</p>':'')+'</div>'+
    (d.warn?'<div class="block"><div class="warn">⚠️ '+esc(d.warn)+'</div></div>':'')+famBlock(p)+'</div></div>';
-  var v=$('#detailView'); v.innerHTML=h; v.hidden=false; $('#listView').hidden=true;
+  var v=$('#detailView'); v.innerHTML=h; hideViews(); v.hidden=false;
   document.title=d.name+' — Bella Formula';
   window.scrollTo(0,0);
   $('#backBtn').onclick=function(){ if(history.length>1&&document.referrer.indexOf(location.host)>=0){history.back()}else{location.hash=''} };
@@ -240,11 +240,86 @@ function detail(id,noStrip){
   } else galNav=null;
   if(strip){var im=new Image();im.onerror=function(){ if(location.hash==='#p='+encodeURIComponent(id)||location.hash==='#p='+id)detail(id,true)};im.src=strip}
 }
+
+/* ---------- РАЗДЕЛ «О ТОВАРАХ» (статьи) ---------- */
+var GI=window.GUIDE_IDX||[], GCATS=[
+ {k:'sport',e:'🏋️',uk:'Спорт',ru:'Спорт'},{k:'vit',e:'🍊',uk:'Вітаміни',ru:'Витамины'},{k:'min',e:'🧂',uk:'Мінерали',ru:'Минералы'},
+ {k:'omega',e:'🐟',uk:'Омега-3 та жири',ru:'Омега-3 и жиры'},{k:'herb',e:'🌿',uk:'Трави та адаптогени',ru:'Травы и адаптогены'},{k:'mush',e:'🍄',uk:'Гриби',ru:'Грибы'},
+ {k:'joint',e:'🦴',uk:'Суглоби, шкіра, колаген',ru:'Суставы, кожа, коллаген'},{k:'brain',e:'🧠',uk:'Нерви, сон, пам’ять',ru:'Нервы, сон, память'},
+ {k:'anti',e:'🛡️',uk:'Антиоксиданти та обмін',ru:'Антиоксиданты и обмен'},{k:'gut',e:'🫶',uk:'Травлення та детокс',ru:'Пищеварение и детокс'},
+ {k:'weight',e:'⚖️',uk:'Контроль ваги',ru:'Контроль веса'},{k:'women',e:'🌸',uk:'Жіноче здоров’я',ru:'Женское здоровье'},{k:'guide',e:'📘',uk:'Загальне',ru:'Общее'}];
+var gcatBy={}; GCATS.forEach(function(c){gcatBy[c.k]=c});
+var gdata=null, gloading=false;
+function hideViews(){['listView','detailView','guideView','articleView'].forEach(function(id){var e=$('#'+id); if(e)e.hidden=true})}
+function gtitle(a){return a.t[st.lang]}
+function guideLinks(p){
+  var r=GI.filter(function(a){return a.p.indexOf(p.id)>=0}).slice(0,3); if(!r.length)return '';
+  return '<div class="block gl">'+r.map(function(a){return '<p class="note">📖 '+t('gRead')+': <a href="#g='+esc(a.s)+'">'+esc(gtitle(a))+'</a></p>'}).join('')+'</div>';
+}
+function guideList(){
+  hideViews(); var v=$('#guideView'); v.hidden=false; document.title=t('guide')+' — Bella Formula';
+  var q=st.gq.trim().toLowerCase(), n={all:GI.length};
+  GI.forEach(function(a){n[a.c]=(n[a.c]||0)+1});
+  var arr=GI.filter(function(a){
+    if(st.gcat!=='all'&&a.c!==st.gcat)return false;
+    if(!q)return true; var hay=(a.t.uk+' '+a.t.ru+' '+a.l.uk+' '+a.l.ru).toLowerCase();
+    return q.split(/\s+/).every(function(w){return hay.indexOf(w)>=0});
+  });
+  var h='<div class="hero"><h1>'+esc(t('gTitle'))+'</h1><p>'+esc(t('gSub'))+'</p></div>'+
+   '<div class="tools"><input id="gq" type="search" autocomplete="off" placeholder="'+esc(t('gSearch'))+'" value="'+esc(st.gq)+'"></div>'+
+   '<div class="chips" id="gChips"><button type="button" class="chip" data-gcat="all" aria-selected="'+(st.gcat==='all')+'">'+t('gAll')+' <em>'+n.all+'</em></button>'+
+   GCATS.filter(function(c){return n[c.k]}).map(function(c){return '<button type="button" class="chip" data-gcat="'+c.k+'" aria-selected="'+(st.gcat===c.k)+'">'+esc(c.e+' '+c[st.lang])+' <em>'+n[c.k]+'</em></button>'}).join('')+'</div>'+
+   '<div class="count">'+t('gCount')+': '+arr.length+'</div><div class="agrid" id="agrid">'+gcards(arr)+'</div>'+(arr.length?'':'<p class="empty">'+t('gEmpty')+'</p>');
+  v.innerHTML=h; window.scrollTo(0,0);
+  var qi=$('#gq'); qi.addEventListener('input',function(e){st.gq=e.target.value; var pos=e.target.selectionStart; guideCards()});
+}
+function gcards(arr){
+  return arr.map(function(a){var c=gcatBy[a.c]||{e:'📘',uk:'',ru:''}, p0=byId[a.p[0]];
+    return '<a class="acard" href="#g='+esc(a.s)+'"><span class="ph" data-e="'+esc(c.e)+'">'+(p0?'<img loading="lazy" src="'+esc(p0.photos[0])+'" alt="">':'')+'</span>'+
+    '<span class="ab"><span class="grp">'+esc(c.e+' '+c[st.lang])+'</span><b>'+esc(gtitle(a))+'</b><span class="al">'+esc(a.l[st.lang])+'</span><span class="more">'+t('gMore')+'</span></span></a>'}).join('');
+}
+function guideCards(){
+  var q=st.gq.trim().toLowerCase();
+  var arr=GI.filter(function(a){
+    if(st.gcat!=='all'&&a.c!==st.gcat)return false;
+    if(!q)return true; var hay=(a.t.uk+' '+a.t.ru+' '+a.l.uk+' '+a.l.ru).toLowerCase();
+    return q.split(/\s+/).every(function(w){return hay.indexOf(w)>=0});
+  });
+  $('#agrid').innerHTML=gcards(arr);
+  var c=document.querySelector('#guideView .count'); if(c)c.textContent=t('gCount')+': '+arr.length;
+  var em=document.querySelector('#guideView .empty'); if(em)em.hidden=arr.length>0;
+}
+function loadGuide(cb,fail){
+  if(window.GUIDE_DATA){cb();return}
+  var s=document.createElement('script'); s.src='guide_data.js'; s.onload=cb; s.onerror=fail; document.head.appendChild(s);
+}
+function article(slug){
+  var a=null; GI.forEach(function(x){if(x.s===slug)a=x}); if(!a){location.hash='#guide';return}
+  hideViews(); var v=$('#articleView'); v.hidden=false; v.innerHTML='<button class="back" id="gBack">'+t('gBack')+'</button><p class="note">'+t('gLoading')+'</p>';
+  $('#gBack').onclick=gBack; window.scrollTo(0,0); document.title=gtitle(a)+' — Bella Formula';
+  loadGuide(function(){
+    if(location.hash!=='#g='+slug&&location.hash!=='#g='+encodeURIComponent(slug))return;
+    var d=(window.GUIDE_DATA||{})[slug]; if(!d){v.innerHTML='<button class="back" id="gBack">'+t('gBack')+'</button><p class="note">'+t('gErr')+'</p>';$('#gBack').onclick=gBack;return}
+    var L2=st.lang, c=gcatBy[a.c]||{e:'📘',uk:'',ru:''};
+    var secs=d.s.map(function(s){
+      return '<h3>'+esc(s['h_'+L2])+'</h3>'+(s['p_'+L2]||[]).map(function(x){return '<p>'+esc(x)+'</p>'}).join('')+
+        ((s['ul_'+L2]&&s['ul_'+L2].length)?'<ul>'+s['ul_'+L2].map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul>':'')}).join('');
+    var rel=a.p.filter(function(id){return byId[id]}).map(function(id){var p=byId[id],dd=L(p);
+      return '<a class="rcard" href="#p='+esc(id)+'"><span class="ph" data-e="'+esc(p.emoji||'💊')+'"><img loading="lazy" src="'+esc(p.photos[0])+'" alt=""></span><span class="rb"><b>'+esc(dd.name)+'</b><span class="pack">'+esc(dd.pack)+'</span></span></a>'}).join('');
+    v.innerHTML='<button class="back" id="gBack">'+t('gBack')+'</button><article class="art"><span class="grp">'+esc(c.e+' '+c[L2])+'</span><h2>'+esc(d['title_'+L2])+'</h2><p class="lead">'+esc(d['lead_'+L2])+'</p>'+secs+
+      '<div class="block"><div class="warn">⚠️ '+esc(d['warn_'+L2])+'</div></div>'+
+      (rel?'<div class="block"><h4>'+t('gRelated')+'</h4><div class="rel">'+rel+'</div></div>':'')+'</article>';
+    $('#gBack').onclick=gBack; window.scrollTo(0,0);
+  },function(){v.innerHTML='<button class="back" id="gBack">'+t('gBack')+'</button><p class="note">'+t('gErr')+'</p>';$('#gBack').onclick=gBack});
+}
+function gBack(){ if(history.length>1&&document.referrer.indexOf(location.host)>=0){history.back()}else{location.hash='#guide'} }
 function route(){
   galNav=null;
-  var m=/^#p=(.+)$/.exec(location.hash);
+  var m=/^#p=(.+)$/.exec(location.hash), g=/^#g=(.+)$/.exec(location.hash);
   if(m){detail(decodeURIComponent(m[1]));}
-  else{$('#detailView').hidden=true;$('#listView').hidden=false;document.title='Bella Formula — '+t('tagline')}
+  else if(g){article(decodeURIComponent(g[1]))}
+  else if(location.hash==='#guide'){guideList()}
+  else{hideViews();$('#listView').hidden=false;document.title='Bella Formula — '+t('tagline')}
 }
 function all(){applyStatic();catbar();list();route();cartChanged();if(!$('#drawer').hidden)renderDrawer()}
 
@@ -265,6 +340,7 @@ document.addEventListener('click',function(e){
   if(el.closest('#copyOrder')){var b=el.closest('#copyOrder');copyText(orderText(),function(){b.textContent=t('copied');setTimeout(function(){b.textContent=t('copy')},1800)});return}
   a=el.closest('#goOrder'); if(a){ if(a.getAttribute('data-long')){copyText(orderText(),function(){var n=$('#cartNote');if(n)n.textContent=t('longHint')})} return}
   if(el.closest('#catBtn')){st.open=!st.open;catbar();return}
+  a=el.closest('[data-gcat]'); if(a){st.gcat=a.getAttribute('data-gcat');guideList();return}
   a=el.closest('[data-cat]'); if(a){st.cat=a.getAttribute('data-cat');st.group='all';st.open=false;catbar();list();
     var w=$('#catWrap'); if(w&&w.getBoundingClientRect().top<0)w.scrollIntoView({block:'start'}); return}
   a=el.closest('[data-grp]'); if(a){st.group=a.getAttribute('data-grp');catbar();list();return}
