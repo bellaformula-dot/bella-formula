@@ -370,6 +370,7 @@ all();
     if(m)m.setAttribute('content',d?'#0f1b26':'#f1f8fd');
   }
   apply(root.getAttribute('data-theme')==='dark');
+  try{var mq=matchMedia('(prefers-color-scheme: dark)');var fn=function(e){var s=null;try{s=localStorage.getItem('bf_theme')}catch(x){}if(!s)apply(e.matches)};mq.addEventListener?mq.addEventListener('change',fn):mq.addListener&&mq.addListener(fn)}catch(e){}
   if(b)b.addEventListener('click',function(){
     var d=root.getAttribute('data-theme')!=='dark';apply(d);
     try{localStorage.setItem('bf_theme',d?'dark':'light')}catch(e){}
