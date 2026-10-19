@@ -12,6 +12,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script>try{var t=localStorage.getItem("bf_theme");if(t==="dark")document.documentElement.setAttribute("data-theme","dark")}catch(e){}</script>
+<meta name="theme-color" content="#f1f8fd">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -22,7 +24,8 @@
       <a class="pill guidelink" id="guideLink" href="#guide"><span class="ge">📖</span><span data-i="guide"></span></a>
       <a class="pill ghost" id="tgChannel" href="https://t.me/bella_formula_italy" target="_blank" rel="noopener"></a>
       <button type="button" class="cartbtn" id="cartBtn">🛒<b id="cartN" hidden>0</b></button>
-      <div class="lang" role="group" aria-label="Language">
+      <button type="button" class="themebtn" id="themeBtn" aria-label="Тема / Theme">🌙</button>
+        <div class="lang" role="group" aria-label="Language">
         <button type="button" data-lang="uk">UA</button><button type="button" data-lang="ru">RU</button>
       </div>
     </nav>

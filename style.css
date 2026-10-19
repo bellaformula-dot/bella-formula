@@ -1,11 +1,17 @@
 :root{
-  --bg:#f6f1e8; --card:#fffdf8; --ink:#1f2a24; --muted:#6b7268; --line:#e5dccb;
-  --green:#1f5a45; --green-2:#17463a; --terra:#c4562f; --chip:#ece4d3; --shadow:0 1px 2px rgba(31,42,36,.06),0 8px 24px rgba(31,42,36,.07);
+  --bg:#f1f8fd; --card:#ffffff; --ink:#17324a; --muted:#587389; --line:#d3e6f3;
+  --green:#1d6fae; --green-2:#14578c; --terra:#c9532a; --chip:#e1f0fa; --chip-on:#d4eafa;
+  --shadow:0 1px 2px rgba(23,50,74,.06),0 8px 24px rgba(40,110,170,.10);
   --r:16px;
 }
-@media (prefers-color-scheme:dark){
-  :root{--bg:#16201b;--card:#1d2a23;--ink:#eef1ea;--muted:#a3ada3;--line:#2b3a31;--green:#5fbf98;--green-2:#7fd1ae;--terra:#f08a62;--chip:#25342b;--shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25)}
+html[data-theme=dark]{
+  --bg:#0f1b26; --card:#162534; --ink:#e8f1f8; --muted:#9db3c4; --line:#26384a;
+  --green:#4fa8e8; --green-2:#7bc0f0; --terra:#f08a62; --chip:#1e3144; --chip-on:#21415c;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.28);
 }
+html[data-theme=dark] .pill:not(.ghost),html[data-theme=dark] .chip[aria-selected=true],html[data-theme=dark] .lang button[aria-pressed=true],html[data-theme=dark] .crow.on,html[data-theme=dark] .sub.on,html[data-theme=dark] .step button{color:#08202f}
+.themebtn{border:1px solid var(--line);background:var(--card);color:var(--ink);width:38px;height:38px;border-radius:999px;font-size:17px;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0}
+.themebtn:hover{border-color:var(--green)}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
@@ -36,7 +42,7 @@ h1,h2,.brand b,.price{font-family:Fraunces,Georgia,serif}
 .chip{flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:8px 14px;font:500 14px Inter,sans-serif;cursor:pointer;white-space:nowrap}
 .chip em{font-style:normal;color:var(--muted);margin-left:6px;font-size:12px}
 .chip[aria-selected=true]{background:var(--green);border-color:var(--green);color:#fff}
-.chip[aria-selected=true] em{color:#d8efe5}
+.chip[aria-selected=true] em{color:var(--chip-on)}
 .count{color:var(--muted);font-size:14px;margin:6px 0 12px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px;padding-bottom:40px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow);transition:transform .15s}
@@ -114,11 +120,11 @@ h1,h2,.brand b,.price{font-family:Fraunces,Georgia,serif}
 .crow:hover{background:var(--chip)}
 .crow.on{background:var(--green);color:#fff}
 .crow em,.sub em{font-style:normal;color:var(--muted);font-size:12px}
-.crow.on em{color:#d8efe5}
+.crow.on em{color:var(--chip-on)}
 .subs{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
 .sub{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:7px 12px;font:500 13px Inter,sans-serif;cursor:pointer}
 .sub.on{background:var(--green);border-color:var(--green);color:#fff}
-.sub.on em{color:#d8efe5}
+.sub.on em{color:var(--chip-on)}
 @media(max-width:560px){.catpanel{grid-template-columns:1fr;max-height:70vh;overflow:auto}.catrst{padding:0 10px}}
 
 .card .ph{position:relative}
@@ -220,3 +226,5 @@ a.lnk{text-decoration:none;display:inline-block}
 .guidelink{white-space:nowrap}
 @media(max-width:560px){.brand b{font-size:16px;white-space:nowrap}.brand-mark{font-size:24px}.guidelink{padding:7px 10px;font-size:12.5px;gap:4px}.lang button{padding:6px 9px}.cartbtn{flex:0 0 auto}.top-in{gap:6px}}
 @media(max-width:560px){.guidelink .ge{display:none}.brand b{font-size:15px}.top-nav{gap:5px}.lang button{padding:6px 8px;font-size:12px}}
+@media(max-width:560px){.themebtn{width:32px;height:32px;font-size:15px;flex:0 0 auto}.cartbtn{width:34px;height:34px;font-size:16px}.brand small{display:none}.brand-mark{font-size:22px}.brand b{font-size:14px}.guidelink{padding:6px 9px;font-size:12px}.top-nav{gap:4px}.top-in{gap:4px}}
+@media(max-width:380px){.brand b{display:none}}

@@ -359,3 +359,19 @@ document.addEventListener('keydown',function(e){
 });
 all();
 })();
+
+/* theme toggle */
+(function(){
+  var b=document.getElementById('themeBtn'),root=document.documentElement;
+  var m=document.querySelector('meta[name=theme-color]');
+  function apply(d){
+    if(d)root.setAttribute('data-theme','dark');else root.removeAttribute('data-theme');
+    if(b){b.textContent=d?'☀️':'🌙';b.setAttribute('aria-pressed',d?'true':'false')}
+    if(m)m.setAttribute('content',d?'#0f1b26':'#f1f8fd');
+  }
+  apply(root.getAttribute('data-theme')==='dark');
+  if(b)b.addEventListener('click',function(){
+    var d=root.getAttribute('data-theme')!=='dark';apply(d);
+    try{localStorage.setItem('bf_theme',d?'dark':'light')}catch(e){}
+  });
+})();
