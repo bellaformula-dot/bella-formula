@@ -275,7 +275,7 @@ function guideList(){
 }
 function gcards(arr){
   return arr.map(function(a){var c=gcatBy[a.c]||{e:'📘',uk:'',ru:''}, p0=byId[a.p[0]];
-    return '<a class="acard" href="#g='+esc(a.s)+'"><span class="ph" data-e="'+esc(c.e)+'">'+(p0?'<img loading="lazy" src="'+esc(p0.photos[0])+'" alt="">':'')+'</span>'+
+    return '<a class="acard" href="#g='+esc(a.s)+'"><span class="ph cv" data-e="'+esc(c.e)+'"><img loading="lazy" src="covers/'+esc(gcatBy[a.c]?a.c:'guide')+'.svg" alt=""></span>'+
     '<span class="ab"><span class="grp">'+esc(c.e+' '+c[st.lang])+'</span><b>'+esc(gtitle(a))+'</b><span class="al">'+esc(a.l[st.lang])+'</span><span class="more">'+t('gMore')+'</span></span></a>'}).join('');
 }
 function guideCards(){
@@ -306,7 +306,7 @@ function article(slug){
         ((s['ul_'+L2]&&s['ul_'+L2].length)?'<ul>'+s['ul_'+L2].map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul>':'')}).join('');
     var rel=a.p.filter(function(id){return byId[id]}).map(function(id){var p=byId[id],dd=L(p);
       return '<a class="rcard" href="#p='+esc(id)+'"><span class="ph" data-e="'+esc(p.emoji||'💊')+'"><img loading="lazy" src="'+esc(p.photos[0])+'" alt=""></span><span class="rb"><b>'+esc(dd.name)+'</b><span class="pack">'+esc(dd.pack)+'</span></span></a>'}).join('');
-    v.innerHTML='<button class="back" id="gBack">'+t('gBack')+'</button><article class="art"><span class="grp">'+esc(c.e+' '+c[L2])+'</span><h2>'+esc(d['title_'+L2])+'</h2><p class="lead">'+esc(d['lead_'+L2])+'</p>'+secs+
+    v.innerHTML='<button class="back" id="gBack">'+t('gBack')+'</button><article class="art"><img class="acover" src="covers/'+esc(gcatBy[a.c]?a.c:'guide')+'.svg" alt=""><span class="grp">'+esc(c.e+' '+c[L2])+'</span><h2>'+esc(d['title_'+L2])+'</h2><p class="lead">'+esc(d['lead_'+L2])+'</p>'+secs+
       '<div class="block"><div class="warn">⚠️ '+esc(d['warn_'+L2])+'</div></div>'+
       (rel?'<div class="block"><h4>'+t('gRelated')+'</h4><div class="rel">'+rel+'</div></div>':'')+'</article>';
     $('#gBack').onclick=gBack; window.scrollTo(0,0);

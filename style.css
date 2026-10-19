@@ -228,3 +228,7 @@ a.lnk{text-decoration:none;display:inline-block}
 @media(max-width:560px){.guidelink .ge{display:none}.brand b{font-size:15px}.top-nav{gap:5px}.lang button{padding:6px 8px;font-size:12px}}
 @media(max-width:560px){.themebtn{width:32px;height:32px;font-size:15px;flex:0 0 auto}.cartbtn{width:34px;height:34px;font-size:16px}.brand small{display:none}.brand-mark{font-size:22px}.brand b{font-size:14px}.guidelink{padding:6px 9px;font-size:12px}.top-nav{gap:4px}.top-in{gap:4px}}
 @media(max-width:380px){.brand b{display:none}}
+
+.acard .ph.cv{background:var(--chip);border:0}
+.acard .ph.cv img{object-fit:cover}
+.acover{display:block;width:100%;aspect-ratio:2/1;max-height:240px;object-fit:cover;border-radius:var(--r);margin:0 0 16px}
