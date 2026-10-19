@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 300" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6f2d0"/><stop offset="1" stop-color="#e8dc8c"/></linearGradient></defs>
+<rect width="600" height="300" fill="url(#g)"/><circle cx="70" cy="40" r="120" fill="#fff" opacity=".28"/><circle cx="560" cy="270" r="140" fill="#fff" opacity=".22"/>
+<ellipse cx="300" cy="256" rx="130" ry="11" fill="#6f6012" opacity=".13"/>
+<g transform="translate(300 232)"><path d="M0 0L-6-66" stroke="#8a7a2a" stroke-width="5" stroke-linecap="round"/>
+<path d="M-6-66C-84-100-100-170-74-204-52-190-30-196 0-212 30-196 54-190 78-204 104-170 88-100-6-66z" fill="#f2c92e" transform="translate(0 40)"/>
+<path d="M-6-26L-48-120M-6-26L-6-150M-6-26L38-120" stroke="#d6a516" stroke-width="3" fill="none" opacity=".8"/>
+<path d="M-6-170L0-196" stroke="#f9e07a" stroke-width="3"/></g>
+<g transform="translate(150 190) rotate(-24) scale(.5)"><path d="M0 0C-70-34-84-96-60-128 -40-114-20-122 0-136 20-122 40-114 60-128 84-96 70-34 0 0z" fill="#f7dd66"/></g>
+<g transform="translate(450 200) rotate(22) scale(.55)"><path d="M0 0C-70-34-84-96-60-128 -40-114-20-122 0-136 20-122 40-114 60-128 84-96 70-34 0 0z" fill="#e8bb28"/></g>
+</svg>
