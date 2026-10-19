@@ -248,7 +248,7 @@ var GI=window.GUIDE_IDX||[], GCATS=[
  {k:'joint',e:'🦴',uk:'Суглоби, шкіра, колаген',ru:'Суставы, кожа, коллаген'},{k:'brain',e:'🧠',uk:'Нерви, сон, пам’ять',ru:'Нервы, сон, память'},
  {k:'anti',e:'🛡️',uk:'Антиоксиданти та обмін',ru:'Антиоксиданты и обмен'},{k:'gut',e:'🫶',uk:'Травлення та детокс',ru:'Пищеварение и детокс'},
  {k:'weight',e:'⚖️',uk:'Контроль ваги',ru:'Контроль веса'},{k:'women',e:'🌸',uk:'Жіноче здоров’я',ru:'Женское здоровье'},{k:'guide',e:'📘',uk:'Загальне',ru:'Общее'}];
-var OWNCOV='shiitake reishi lions-mane chaga agaricus-blazei maitake cordyceps raspberry-ketone bromelain krill-oil curcuma ashwagandha black-garlic ginkgo milk-thistle maca moringa fenugreek kelp grape-seed flaxseed-oil apple-vinegar'.split(' ');
+var OWNCOV='shiitake reishi lions-mane chaga agaricus-blazei maitake cordyceps raspberry-ketone bromelain krill-oil curcuma ashwagandha black-garlic ginkgo milk-thistle maca moringa fenugreek kelp grape-seed flaxseed-oil apple-vinegar green-coffee cla forskolin evening-primrose cimicifuga serenoa shilajit hemp-oil astaxanthin lutein d-mannose vitamin-c'.split(' ');
 function covUrl(a){return 'covers/'+(OWNCOV.indexOf(a.s)>=0?a.s:(gcatBy[a.c]?a.c:'guide'))+'.svg'}
 var gcatBy={}; GCATS.forEach(function(c){gcatBy[c.k]=c});
 var gdata=null, gloading=false;
