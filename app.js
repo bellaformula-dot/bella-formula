@@ -273,6 +273,7 @@ function guideList(){
    GCATS.filter(function(c){return n[c.k]}).map(function(c){return '<button type="button" class="chip" data-gcat="'+c.k+'" aria-selected="'+(st.gcat===c.k)+'">'+esc(c.e+' '+c[st.lang])+' <em>'+n[c.k]+'</em></button>'}).join('')+'</div>'+
    '<div class="count">'+t('gCount')+': '+arr.length+'</div><div class="agrid" id="agrid">'+gcards(arr)+'</div>'+(arr.length?'':'<p class="empty">'+t('gEmpty')+'</p>');
   v.innerHTML=h; window.scrollTo(0,0);
+  (function(){var c=$('#gChips'),s=c&&c.querySelector('[aria-selected=true]'); if(c&&s&&st.gcat!=='all'){c.scrollLeft=Math.max(0,s.offsetLeft-c.offsetLeft-(c.clientWidth-s.offsetWidth)/2)}})();
   var qi=$('#gq'); qi.addEventListener('input',function(e){st.gq=e.target.value; var pos=e.target.selectionStart; guideCards()});
 }
 function gcards(arr){
