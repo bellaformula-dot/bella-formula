@@ -182,7 +182,7 @@ function list(){
     var d=L(p);
     return '<article class="card"><a class="ph" href="#p='+esc(p.id)+'" aria-label="'+esc(d.name)+'" data-e="'+esc(p.emoji||'💊')+'"><img loading="lazy" src="'+esc(p.photos[0])+'" alt="'+esc(d.name+' '+d.pack)+'"></a>'+
     '<div class="bd"><span class="grp">'+esc(gname(p.group))+'</span><h3><a href="#p='+esc(p.id)+'">'+esc(d.name)+'</a></h3><span class="pack">'+esc(d.pack)+'</span>'+
-    '<div class="row"><span class="price">'+p.price+'<small> €</small></span><span class="ctl" data-ctl="'+esc(p.id)+'">'+ctl(p)+'</span></div></div></article>';
+    '<div class="row"><span class="price">'+p.price+'<small> €</small></span><span class="ctl" data-ctl="'+esc(p.id)+'">'+ctl(p)+'</span></div></div>'+cmpBtn(p.id)+'</article>';
   }).join('');
 }
 function famBlock(p){
@@ -207,7 +207,7 @@ function detail(id,noStrip){
    (strip?'<div id="mainImg" class="fr" role="img" aria-label="'+esc(d.name+' '+d.pack)+'" style="'+bg(0)+'"></div>':'<img id="mainImg" src="'+esc(ph[0])+'" alt="'+esc(d.name+' '+d.pack)+'">')+arrows+'</div>'+
    (N>1?'<div class="thumbs">'+Array.apply(null,Array(N)).map(function(_,i){return '<button type="button" data-i="'+i+'" aria-current="'+(i===0)+'" aria-label="'+t('ph')+' '+(i+1)+'">'+(strip?'<span class="fr" style="'+bg(i)+'"></span>':'<img src="'+esc(ph[i])+'" alt="">')+'</button>'}).join('')+'</div>':'')+'</div>'+
    '<div class="info"><span class="grp" style="color:var(--terra);font-weight:600;font-size:13px">'+esc(gname(p.group))+'</span><h2>'+esc(d.name)+'</h2><div class="pack">'+esc(d.pack)+' · '+t('from')+' 🇮🇹</div>'+
-   '<div class="buyrow"><span class="price">'+p.price+' €</span><span class="ctl big" data-ctl="'+esc(p.id)+'">'+ctl(p)+'</span></div>'+
+   '<div class="buyrow"><span class="price">'+p.price+' €</span><span class="ctl big" data-ctl="'+esc(p.id)+'">'+ctl(p)+'</span></div>'+'<div class="cmprow">'+cmpBtn(p.id,true)+'</div>'+
    d.desc.map(function(x){return '<p>'+esc(x)+'</p>'}).join('')+guideLinks(p)+
    '<div class="block"><h4>'+t('comp')+(d.comp_title?' — '+esc(d.comp_title.replace(/^(Склад|Состав)\s*/,'')):'')+'</h4><ul class="comp">'+comp+'</ul></div>'+
    '<div class="block"><h4>'+t('how')+'</h4><p>'+esc(d.how)+'</p>'+d.notes.map(function(x){return '<p class="note">'+esc(x)+'</p>'}).join('')+(p.weeks?'<p class="note">🗓 '+t('weeks')+': '+p.weeks+' '+t('packs')+' = '+(p.weeks*p.price)+' €</p>':'')+'</div>'+
@@ -252,7 +252,7 @@ var OWNCOV='aakg acetyl-carnitine agaricus-blazei ala apple-vinegar arginine-cit
 function covUrl(a){return 'covers/'+(OWNCOV.indexOf(a.s)>=0?a.s:(gcatBy[a.c]?a.c:'guide'))+'.svg'}
 var gcatBy={}; GCATS.forEach(function(c){gcatBy[c.k]=c});
 var gdata=null, gloading=false;
-function hideViews(){['listView','detailView','guideView','articleView'].forEach(function(id){var e=$('#'+id); if(e)e.hidden=true})}
+function hideViews(){['listView','detailView','guideView','articleView','compareView'].forEach(function(id){var e=$('#'+id); if(e)e.hidden=true})}
 function gtitle(a){return a.t[st.lang]}
 function guideLinks(p){
   var r=GI.filter(function(a){return a.p.indexOf(p.id)>=0}).slice(0,3); if(!r.length)return '';
@@ -316,15 +316,77 @@ function article(slug){
   },function(){v.innerHTML='<button class="back" id="gBack">'+t('gBack')+'</button><p class="note">'+t('gErr')+'</p>';$('#gBack').onclick=gBack});
 }
 function gBack(){ if(history.length>1&&document.referrer.indexOf(location.host)>=0){history.back()}else{location.hash='#guide'} }
+
+/* ---------- СРАВНЕНИЕ ТОВАРОВ ---------- */
+var CT={uk:{add:'Порівняти',inn:'У порівнянні',title:'Порівняння товарів',empty:'Порівняння порожнє. Додайте товари кнопкою ⚖️ у каталозі.',one:'Додайте ще хоча б один товар, щоб порівняти.',onlyDiff:'Лише відмінності',more:'+ Додати ще товар',clear:'Очистити',max:'Можна порівнювати до 4 товарів',added:'Додано до порівняння',open:'Відкрити',removed:'Прибрано з порівняння',back:'← До каталогу',price:'Ціна',ppd:'Ціна за день',cat:'Категорія',pack:'Фасування',days:'Вистачить на',comp:'Склад на добову норму',how:'Як приймати',rm:'Прибрати',d:'дн.',same:'Однакові значення приховано',btn:'Порівняння'},
+ru:{add:'Сравнить',inn:'В сравнении',title:'Сравнение товаров',empty:'Сравнение пусто. Добавьте товары кнопкой ⚖️ в каталоге.',one:'Добавьте ещё хотя бы один товар, чтобы сравнить.',onlyDiff:'Только отличия',more:'+ Добавить ещё товар',clear:'Очистить',max:'Можно сравнивать до 4 товаров',added:'Добавлено в сравнение',open:'Открыть',removed:'Убрано из сравнения',back:'← В каталог',price:'Цена',ppd:'Цена за день',cat:'Категория',pack:'Фасовка',days:'Хватит на',comp:'Состав на суточную норму',how:'Как принимать',rm:'Убрать',d:'дн.',same:'Одинаковые значения скрыты',btn:'Сравнение'}};
+function ct(k){return CT[st.lang][k]}
+var CMP_MAX=4, cmp=[], cmpDiff=false;
+try{var rc=JSON.parse(localStorage.getItem('bf_cmp')||'[]'); if(Array.isArray(rc))cmp=rc.filter(function(id,i){return byId[id]&&rc.indexOf(id)===i}).slice(0,CMP_MAX)}catch(e){}
+function saveCmp(){try{localStorage.setItem('bf_cmp',JSON.stringify(cmp))}catch(e){}}
+function cmpBtn(id,big){var on=cmp.indexOf(id)>=0;
+  return '<button type="button" class="cmpb'+(big?' big':'')+(on?' on':'')+'" data-cmp="'+esc(id)+'" aria-pressed="'+on+'" aria-label="'+esc(on?ct('inn'):ct('add'))+'" title="'+esc(on?ct('inn'):ct('add'))+'">⚖️'+(big?' <span>'+esc(on?ct('inn'):ct('add'))+'</span>':'')+'</button>'}
+function toast(msg,link){
+  var e=$('#toast'); if(!e){e=document.createElement('div');e.id='toast';e.className='toast';e.setAttribute('role','status');document.body.appendChild(e)}
+  e.innerHTML='<span>'+esc(msg)+'</span>'+(link?' <a href="#compare">'+esc(ct('open'))+'</a>':''); e.classList.add('show');
+  clearTimeout(toast.t); toast.t=setTimeout(function(){e.classList.remove('show')},3200)}
+function cmpChanged(){
+  var n=cmp.length,b=$('#cmpN'),bt=$('#cmpBtn'); if(b){b.textContent=n} if(bt){bt.hidden=!n;bt.setAttribute('aria-label',ct('btn'))}
+  document.querySelectorAll('[data-cmp]').forEach(function(e){var id=e.getAttribute('data-cmp'),on=cmp.indexOf(id)>=0;
+    if(e.classList.contains('cmpb')){e.classList.toggle('on',on);e.setAttribute('aria-pressed',on);var s=e.querySelector('span');if(s)s.textContent=on?ct('inn'):ct('add');e.title=on?ct('inn'):ct('add');e.setAttribute('aria-label',e.title)}});
+  var v=$('#compareView'); if(v&&!v.hidden)compareView();
+}
+function toggleCmp(id){
+  var i=cmp.indexOf(id);
+  if(i>=0){cmp.splice(i,1);saveCmp();cmpChanged();toast(ct('removed'));return}
+  if(cmp.length>=CMP_MAX){toast(ct('max'));return}
+  cmp.push(id);saveCmp();cmpChanged();toast(ct('added'),true)
+}
+function daysOf(p){
+  var f=C.families.filter(function(f){return f.items.some(function(i){return i.id===p.id})})[0];
+  if(f){var it=f.items.filter(function(i){return i.id===p.id})[0]; if(it&&it.days)return it.days}
+  var m=/(?:хватит на|вистачить на)\s*(\d+)/.exec(p.ru.how+' '+p.uk.how); return m?+m[1]:null
+}
+function compareView(){
+  hideViews(); var v=$('#compareView'); v.hidden=false; document.title=ct('title')+' — Bella Formula';
+  var ps=cmp.map(function(id){return byId[id]}).filter(Boolean);
+  if(!ps.length){v.innerHTML='<button class="back" id="cmpBack">'+ct('back')+'</button><div class="hero"><h1>'+esc(ct('title'))+'</h1><p>'+esc(ct('empty'))+'</p></div>';return}
+  var rows=[
+   {k:'price',f:function(p){return p.price+' €'}},
+   {k:'ppd',f:function(p){var d=daysOf(p);return d?money(p.price/d)+' € / '+ct('d').replace('.','')+'':'—'},raw:function(p){var d=daysOf(p);return d?String(p.price/d):'—'}},
+   {k:'cat',f:function(p){return gname(p.group)}},
+   {k:'pack',f:function(p){return L(p).pack}},
+   {k:'days',f:function(p){var d=daysOf(p);return d?d+' '+ct('d'):'—'}},
+   {k:'comp',f:function(p){return L(p).comp.map(function(x){return x.replace(/^💊\s*/,'')}).join('\n')},list:true},
+   {k:'how',f:function(p){return L(p).how}}];
+  var head='<tr><th class="rl"></th>'+ps.map(function(p){var d=L(p);
+    return '<th class="pc"><button type="button" class="rm" data-cmp="'+esc(p.id)+'" aria-label="'+esc(ct('rm'))+'" title="'+esc(ct('rm'))+'">×</button><a class="cph" href="#p='+esc(p.id)+'"><img src="'+esc(p.photos[0])+'" alt=""></a><a class="cnm" href="#p='+esc(p.id)+'">'+esc(d.name)+'</a><span class="ctl" data-ctl="'+esc(p.id)+'">'+ctl(p)+'</span></th>'}).join('')+'</tr>';
+  var body=rows.map(function(r){
+    var vals=ps.map(function(p){return r.f(p)}), keys=ps.map(function(p){return r.raw?r.raw(p):r.f(p)});
+    var diff=ps.length>1&&keys.some(function(x){return x!==keys[0]});
+    if(cmpDiff&&!diff&&ps.length>1)return '';
+    return '<tr class="'+(diff?'diff':'same')+'"><th class="rl">'+esc(ct(r.k))+'</th>'+vals.map(function(x){
+      return '<td>'+(r.list?'<ul>'+x.split('\n').map(function(l){return '<li>'+esc(l)+'</li>'}).join('')+'</ul>':esc(x))+'</td>'}).join('')+'</tr>'}).join('');
+  v.innerHTML='<button class="back" id="cmpBack">'+ct('back')+'</button><div class="hero"><h1>'+esc(ct('title'))+'</h1></div>'+
+   '<div class="cmptools"><label class="chk"><input type="checkbox" id="cmpDiff"'+(cmpDiff?' checked':'')+'> '+esc(ct('onlyDiff'))+'</label>'+
+   (cmp.length<CMP_MAX?'<button type="button" class="pill ghost" id="cmpMore">'+esc(ct('more'))+'</button>':'')+'<button type="button" class="pill ghost" id="cmpClear">'+esc(ct('clear'))+'</button></div>'+
+   (ps.length<2?'<p class="note">'+esc(ct('one'))+'</p>':'')+
+   '<div class="cmpwrap"><table class="cmpt" style="--n:'+ps.length+'"><thead>'+head+'</thead><tbody>'+body+'</tbody></table></div>'+
+   (cmpDiff&&ps.length>1?'<p class="note">'+esc(ct('same'))+'</p>':'');
+  window.scrollTo(0,0);
+}
+document.addEventListener('change',function(e){if(e.target&&e.target.id==='cmpDiff'){cmpDiff=e.target.checked;var y=window.scrollY;compareView();window.scrollTo(0,y)}});
+
 function route(){
   galNav=null;
   var m=/^#p=(.+)$/.exec(location.hash), g=/^#g=(.+)$/.exec(location.hash);
   if(m){detail(decodeURIComponent(m[1]));}
   else if(g){article(decodeURIComponent(g[1]))}
   else if(location.hash==='#guide'){guideList()}
+  else if(location.hash==='#compare'){compareView()}
   else{hideViews();$('#listView').hidden=false;document.title='Bella Formula — '+t('tagline')}
 }
-function all(){applyStatic();catbar();list();route();cartChanged();if(!$('#drawer').hidden)renderDrawer()}
+function all(){applyStatic();catbar();list();route();cartChanged();cmpChanged();if(!$('#drawer').hidden)renderDrawer()}
 
 /* ---------- СОБЫТИЯ ---------- */
 document.addEventListener('error',function(e){
@@ -337,6 +399,10 @@ document.addEventListener('click',function(e){
   a=el.closest('[data-inc]'); if(a){var i=a.getAttribute('data-inc');setQty(i,(cart[i]||0)+1);return}
   a=el.closest('[data-dec]'); if(a){var j=a.getAttribute('data-dec');setQty(j,(cart[j]||0)-1);return}
   a=el.closest('[data-rm]'); if(a){setQty(a.getAttribute('data-rm'),0);return}
+  a=el.closest('[data-cmp]'); if(a){toggleCmp(a.getAttribute('data-cmp'));return}
+  if(el.closest('#cmpBtn')){location.hash='#compare';return}
+  if(el.closest('#cmpBack')||el.closest('#cmpMore')){location.hash='';return}
+  if(el.closest('#cmpClear')){cmp=[];saveCmp();cmpChanged();return}
   if(el.closest('#cartBtn')){openCart();return}
   if(el.closest('#drawerClose')||el.closest('#veil')||el.closest('[data-closecart]')){closeCart();return}
   if(el.closest('#clearCart')){cart={};saveCart();cartChanged();return}
