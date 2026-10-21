@@ -44,6 +44,7 @@ var catOf={}; CATS.forEach(function(c){
   c.g.forEach(function(k){catOf[k]=c})});
 function gname(k){var g=gmap[k];return g.emoji+' '+g[st.lang]}
 function cname(c){return c.e+' '+c[st.lang]}
+function fm(n){return String(Math.round(n*100)/100).replace('.',',')}
 function money(n){return (Math.round(n*100)/100).toFixed(2).replace('.',',')}
 function L(p){return p[st.lang]}
 
@@ -69,14 +70,14 @@ function cartChanged(){
 function orderText(){
   var lines=[t('orderHi')], i=0;
   Object.keys(cart).forEach(function(id){var p=byId[id],d=L(p),q=cart[id]; i++;
-    lines.push(i+') '+d.name+', '+d.pack+' — '+q+' '+t('pcs')+' × '+p.price+' € = '+(q*p.price)+' €')});
-  lines.push(t('orderTotal')+': '+cartSum()+' €'); lines.push(''); lines.push(t('orderSrc'));
+    lines.push(i+') '+d.name+', '+d.pack+' — '+q+' '+t('pcs')+' × '+fm(p.price)+' € = '+fm(q*p.price)+' €')});
+  lines.push(t('orderTotal')+': '+fm(cartSum())+' €'); lines.push(''); lines.push(t('orderSrc'));
   return lines.join('\n');
 }
 function orderLines(){
   var lines=[], i=0;
   Object.keys(cart).forEach(function(id){var p=byId[id],d=L(p),q=cart[id]; i++;
-    lines.push(i+') '+d.name+', '+d.pack+' — '+q+' '+t('pcs')+' × '+p.price+' € = '+(q*p.price)+' €')});
+    lines.push(i+') '+d.name+', '+d.pack+' — '+q+' '+t('pcs')+' × '+fm(p.price)+' € = '+fm(q*p.price)+' €')});
   return lines.join('\n');
 }
 function newOrderNo(){var d=new Date(),z=function(n){return ('0'+n).slice(-2)};return 'BF-'+z(d.getMonth()+1)+z(d.getDate())+'-'+z(d.getHours())+z(d.getMinutes())+'-'+Math.floor(100+Math.random()*900)}
@@ -96,10 +97,10 @@ function renderDrawer(){
     return '<div class="ci"><a class="cth" href="#p='+esc(id)+'" data-closecart data-e="'+esc(p.emoji||'💊')+'"><img src="'+esc(p.photos[0])+'" alt=""></a>'+
      '<div class="cin"><a class="cname" href="#p='+esc(id)+'" data-closecart>'+esc(d.name)+'</a><span class="pack">'+esc(d.pack)+'</span>'+
      '<div class="cbot"><div class="step"><button type="button" data-dec="'+esc(id)+'" aria-label="−">−</button><span>'+q+'</span><button type="button" data-inc="'+esc(id)+'" aria-label="+">+</button></div>'+
-     '<b class="cl">'+(q*p.price)+' €</b></div></div><button type="button" class="crm" data-rm="'+esc(id)+'" aria-label="'+t('remove')+'">✕</button></div>'}).join('');
+     '<b class="cl">'+fm(q*p.price)+' €</b></div></div><button type="button" class="crm" data-rm="'+esc(id)+'" aria-label="'+t('remove')+'">✕</button></div>'}).join('');
   var text=orderText(), url=TG+'?text='+encodeURIComponent(text), long=url.length>1900;
   if(ORDER_API){
-    foot.innerHTML='<div class="tot"><span>'+t('total')+'</span><b>'+cartSum()+' €</b></div>'+
+    foot.innerHTML='<div class="tot"><span>'+t('total')+'</span><b>'+fm(cartSum())+' €</b></div>'+
       '<form id="orderForm" novalidate><input class="fi" id="fName" autocomplete="name" maxlength="80" placeholder="'+esc(t('fName'))+'" value="'+esc(form.name)+'">'+
       '<input class="fi" id="fContact" autocomplete="tel" maxlength="120" placeholder="'+esc(t('fContact'))+'" value="'+esc(form.contact)+'">'+
       '<textarea class="fi" id="fComment" rows="2" maxlength="500" placeholder="'+esc(t('fComment'))+'">'+esc(form.comment)+'</textarea>'+
@@ -110,7 +111,7 @@ function renderDrawer(){
       '<div class="frow"><a class="lnk" id="goOrder" target="_blank" rel="noopener" href="'+(long?TG:esc(url))+'"'+(long?' data-long="1"':'')+'>'+t('orTg')+'</a><button type="button" class="lnk" id="clearCart">'+t('clear')+'</button></div>';
     return;
   }
-  foot.innerHTML='<div class="tot"><span>'+t('total')+'</span><b>'+cartSum()+' €</b></div>'+
+  foot.innerHTML='<div class="tot"><span>'+t('total')+'</span><b>'+fm(cartSum())+' €</b></div>'+
     '<a class="pill big" id="goOrder" target="_blank" rel="noopener" href="'+(long?TG:esc(url))+'"'+(long?' data-long="1"':'')+'>✈️ '+t('checkout')+'</a>'+
     '<p class="note" id="cartNote">'+t('cartHint')+'</p>'+
     '<div class="frow"><button type="button" class="lnk" id="copyOrder">'+t('copy')+'</button><button type="button" class="lnk" id="clearCart">'+t('clear')+'</button></div>';
@@ -182,14 +183,14 @@ function list(){
     var d=L(p);
     return '<article class="card"><a class="ph" href="#p='+esc(p.id)+'" aria-label="'+esc(d.name)+'" data-e="'+esc(p.emoji||'💊')+'"><img loading="lazy" src="'+esc(p.photos[0])+'" alt="'+esc(d.name+' '+d.pack)+'"></a>'+
     '<div class="bd"><span class="grp">'+esc(gname(p.group))+'</span><h3><a href="#p='+esc(p.id)+'">'+esc(d.name)+'</a></h3><span class="pack">'+esc(d.pack)+'</span>'+
-    '<div class="row"><span class="price">'+p.price+'<small> €</small></span><span class="ctl" data-ctl="'+esc(p.id)+'">'+ctl(p)+'</span></div></div>'+cmpBtn(p.id)+'</article>';
+    '<div class="row"><span class="price">'+fm(p.price)+'<small> €</small></span><span class="ctl" data-ctl="'+esc(p.id)+'">'+ctl(p)+'</span></div></div>'+cmpBtn(p.id)+'</article>';
   }).join('');
 }
 function famBlock(p){
   var f=C.families.filter(function(f){return f.items.some(function(i){return i.id===p.id})})[0]; if(!f)return '';
   var rows=f.items.map(function(i){var q=byId[i.id]; var cur=i.id===p.id;
     var lab=esc(st.lang==='ru'?i.label_ru:i.label_uk);
-    return '<tr'+(cur?' class="cur"':'')+'><td>'+(i.id===f.recommend?'⭐ ':'▫️ ')+(cur?lab+' <span class="note">('+t('cur')+')</span>':'<a href="#p='+esc(i.id)+'">'+lab+'</a>')+'</td><td><b>'+q.price+' €</b></td><td>'+money(q.price/i.days)+' € / '+(st.lang==='ru'?'день':'день')+'</td><td class="star">'+(i.id===f.recommend?t('rec'):'')+'</td></tr>'}).join('');
+    return '<tr'+(cur?' class="cur"':'')+'><td>'+(i.id===f.recommend?'⭐ ':'▫️ ')+(cur?lab+' <span class="note">('+t('cur')+')</span>':'<a href="#p='+esc(i.id)+'">'+lab+'</a>')+'</td><td><b>'+fm(q.price)+' €</b></td><td>'+money(q.price/i.days)+' € / '+(st.lang==='ru'?'день':'день')+'</td><td class="star">'+(i.id===f.recommend?t('rec'):'')+'</td></tr>'}).join('');
   var rec=f.items.filter(function(i){return i.id===f.recommend})[0];
   var tail=p.id===f.recommend?'<p class="note">✅ '+t('best')+'</p>':'<p class="note">💡 '+t('recLine')+' <a href="#p='+esc(rec.id)+'">'+esc(st.lang==='ru'?rec.label_ru:rec.label_uk)+'</a>.</p>';
   return '<div class="block"><h4>'+t('pack')+' — '+esc(st.lang==='ru'?f.name_ru:f.name_uk)+'</h4><table class="fam">'+rows+'</table>'+tail+'</div>';
@@ -207,10 +208,10 @@ function detail(id,noStrip){
    (strip?'<div id="mainImg" class="fr" role="img" aria-label="'+esc(d.name+' '+d.pack)+'" style="'+bg(0)+'"></div>':'<img id="mainImg" src="'+esc(ph[0])+'" alt="'+esc(d.name+' '+d.pack)+'">')+arrows+'</div>'+
    (N>1?'<div class="thumbs">'+Array.apply(null,Array(N)).map(function(_,i){return '<button type="button" data-i="'+i+'" aria-current="'+(i===0)+'" aria-label="'+t('ph')+' '+(i+1)+'">'+(strip?'<span class="fr" style="'+bg(i)+'"></span>':'<img src="'+esc(ph[i])+'" alt="">')+'</button>'}).join('')+'</div>':'')+'</div>'+
    '<div class="info"><span class="grp" style="color:var(--terra);font-weight:600;font-size:13px">'+esc(gname(p.group))+'</span><h2>'+esc(d.name)+'</h2><div class="pack">'+esc(d.pack)+' · '+t('from')+' 🇮🇹</div>'+
-   '<div class="buyrow"><span class="price">'+p.price+' €</span><span class="ctl big" data-ctl="'+esc(p.id)+'">'+ctl(p)+'</span></div>'+'<div class="cmprow">'+cmpBtn(p.id,true)+'</div>'+
+   '<div class="buyrow"><span class="price">'+fm(p.price)+' €</span><span class="ctl big" data-ctl="'+esc(p.id)+'">'+ctl(p)+'</span></div>'+'<div class="cmprow">'+cmpBtn(p.id,true)+'</div>'+
    d.desc.map(function(x){return '<p>'+esc(x)+'</p>'}).join('')+guideLinks(p)+
    '<div class="block"><h4>'+t('comp')+(d.comp_title?' — '+esc(d.comp_title.replace(/^(Склад|Состав)\s*/,'')):'')+'</h4><ul class="comp">'+comp+'</ul></div>'+
-   '<div class="block"><h4>'+t('how')+'</h4><p>'+esc(d.how)+'</p>'+d.notes.map(function(x){return '<p class="note">'+esc(x)+'</p>'}).join('')+(p.weeks?'<p class="note">🗓 '+t('weeks')+': '+p.weeks+' '+t('packs')+' = '+(p.weeks*p.price)+' €</p>':'')+'</div>'+
+   '<div class="block"><h4>'+t('how')+'</h4><p>'+esc(d.how)+'</p>'+d.notes.map(function(x){return '<p class="note">'+esc(x)+'</p>'}).join('')+(p.weeks?'<p class="note">🗓 '+t('weeks')+': '+p.weeks+' '+t('packs')+' = '+fm(p.weeks*p.price)+' €</p>':'')+'</div>'+
    (d.warn?'<div class="block"><div class="warn">⚠️ '+esc(d.warn)+'</div></div>':'')+famBlock(p)+'</div></div>';
   var v=$('#detailView'); v.innerHTML=h; hideViews(); v.hidden=false;
   document.title=d.name+' — Bella Formula';
@@ -352,7 +353,7 @@ function compareView(){
   var ps=cmp.map(function(id){return byId[id]}).filter(Boolean);
   if(!ps.length){v.innerHTML='<button class="back" id="cmpBack">'+ct('back')+'</button><div class="hero"><h1>'+esc(ct('title'))+'</h1><p>'+esc(ct('empty'))+'</p></div>';return}
   var rows=[
-   {k:'price',f:function(p){return p.price+' €'}},
+   {k:'price',f:function(p){return fm(p.price)+' €'}},
    {k:'ppd',f:function(p){var d=daysOf(p);return d?money(p.price/d)+' € / '+ct('d').replace('.','')+'':'—'},raw:function(p){var d=daysOf(p);return d?String(p.price/d):'—'}},
    {k:'cat',f:function(p){return gname(p.group)}},
    {k:'pack',f:function(p){return L(p).pack}},
