@@ -346,7 +346,8 @@ function toggleCmp(id){
 function daysOf(p){
   var f=C.families.filter(function(f){return f.items.some(function(i){return i.id===p.id})})[0];
   if(f){var it=f.items.filter(function(i){return i.id===p.id})[0]; if(it&&it.days)return it.days}
-  var m=/(?:хватит на|вистачить на)\s*(\d+)/.exec(p.ru.how+' '+p.uk.how); return m?+m[1]:null
+  if(p.days)return p.days;
+  var m=/(?:хватит на|вистачить на)\s*(\d+)\s*(?:дн|день)/.exec(p.ru.how+' '+p.uk.how); return m?+m[1]:null
 }
 function compareView(){
   hideViews(); var v=$('#compareView'); v.hidden=false; document.title=ct('title')+' — Bella Formula';
@@ -378,14 +379,19 @@ function compareView(){
 }
 document.addEventListener('change',function(e){if(e.target&&e.target.id==='cmpDiff'){cmpDiff=e.target.checked;var y=window.scrollY;compareView();window.scrollTo(0,y)}});
 
+var lastY=0, prevHash='', cmpBackTo='', restoreY=false;
 function route(){
   galNav=null;
+  var lv=$('#listView'); if(lv&&!lv.hidden)lastY=window.scrollY;
+  if(location.hash==='#compare'&&prevHash!=='#compare')cmpBackTo=prevHash;
+  prevHash=location.hash;
   var m=/^#p=(.+)$/.exec(location.hash), g=/^#g=(.+)$/.exec(location.hash);
   if(m){detail(decodeURIComponent(m[1]));}
   else if(g){article(decodeURIComponent(g[1]))}
   else if(location.hash==='#guide'){guideList()}
   else if(location.hash==='#compare'){compareView()}
-  else{hideViews();$('#listView').hidden=false;document.title='Bella Formula — '+t('tagline')}
+  else{hideViews();$('#listView').hidden=false;document.title='Bella Formula — '+t('tagline');
+    if(restoreY){restoreY=false;var y=lastY;window.scrollTo({top:y,behavior:'instant'});setTimeout(function(){window.scrollTo({top:y,behavior:'instant'})},60)}}
 }
 function all(){applyStatic();catbar();list();route();cartChanged();cmpChanged();if(!$('#drawer').hidden)renderDrawer()}
 
@@ -402,7 +408,7 @@ document.addEventListener('click',function(e){
   a=el.closest('[data-rm]'); if(a){setQty(a.getAttribute('data-rm'),0);return}
   a=el.closest('[data-cmp]'); if(a){toggleCmp(a.getAttribute('data-cmp'));return}
   if(el.closest('#cmpBtn')){location.hash='#compare';return}
-  if(el.closest('#cmpBack')||el.closest('#cmpMore')){location.hash='';return}
+  if(el.closest('#cmpBack')||el.closest('#cmpMore')){if(/^#p=/.test(cmpBackTo)){location.hash=cmpBackTo}else{restoreY=true;location.hash=''}return}
   if(el.closest('#cmpClear')){cmp=[];saveCmp();cmpChanged();return}
   if(el.closest('#cartBtn')){openCart();return}
   if(el.closest('#drawerClose')||el.closest('#veil')||el.closest('[data-closecart]')){closeCart();return}
