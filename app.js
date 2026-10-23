@@ -32,7 +32,7 @@ var CATS=[
  {k:'cla',g:['cla']},{k:'om',g:['om']},{k:'vit',g:['vit']},{k:'min',g:['min']},{k:'ant',g:['ant']},
  {k:'mush',g:['mush']},{k:'herb',g:['herb']},{k:'jnt',g:['jnt']},{k:'brain',g:['brain']},{k:'gut',g:['gut']},{k:'phi',g:['phi']}
 ];
-var st={lang:'uk',cat:'all',group:'all',q:'',sort:'def',open:false,gcat:'all',gq:''};
+var st={lang:'uk',cat:'all',group:'all',q:'',sort:'def',open:false,gcat:'all',gq:'',brand:'all',form:'all'};
 try{var sl=localStorage.getItem('bf_lang'); if(sl==='uk'||sl==='ru') st.lang=sl; else if(/^ru/i.test(navigator.language||'')) st.lang='ru';}catch(e){}
 var $=function(s){return document.querySelector(s)};
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
@@ -166,15 +166,34 @@ function applyStatic(){
   document.querySelectorAll('.lang button').forEach(function(b){b.setAttribute('aria-pressed',b.getAttribute('data-lang')===st.lang)});
   var s=$('#sort'); s.innerHTML='<option value="def">'+t('sortDef')+'</option><option value="asc">'+t('sortAsc')+'</option><option value="desc">'+t('sortDesc')+'</option>'; s.value=st.sort;
 }
-function list(){
+var BRANDS=[['bandini','Bandini'],['aldous','Aldous'],['yamamoto','Yamamoto'],['philautia','Philautia']];
+var FORMS=[['cap',{uk:'Капсули',ru:'Капсулы'}],['tab',{uk:'Таблетки',ru:'Таблетки'}],['gum',{uk:'Цукерки',ru:'Конфеты'}],['pow',{uk:'Порошок',ru:'Порошок'}],['drop',{uk:'Краплі та рідини',ru:'Капли и жидкости'}]];
+var FT={uk:{brand:'Бренд',form:'Фасування',all:'Усі',reset:'Скинути фільтри'},ru:{brand:'Бренд',form:'Фасовка',all:'Все',reset:'Сбросить фильтры'}};
+function passes(p,ig){
   var q=st.q.trim().toLowerCase(), cur=null; CATS.forEach(function(c){if(c.k===st.cat)cur=c});
-  var arr=C.products.filter(function(p){
-    if(st.group!=='all'&&p.group!==st.group)return false;
-    if(st.group==='all'&&cur&&cur.g.indexOf(p.group)<0)return false;
-    if(!q)return true;
-    var hay=(p.uk.name+' '+p.ru.name+' '+p.uk.pack+' '+p.ru.pack+' '+gmap[p.group].uk+' '+gmap[p.group].ru).toLowerCase();
-    return q.split(/\s+/).every(function(w){return hay.indexOf(w)>=0});
-  });
+  if(st.group!=='all'&&p.group!==st.group)return false;
+  if(st.group==='all'&&cur&&cur.g.indexOf(p.group)<0)return false;
+  if(ig!=='brand'&&st.brand!=='all'&&p.brand!==st.brand)return false;
+  if(ig!=='form'&&st.form!=='all'&&p.form!==st.form)return false;
+  if(!q)return true;
+  var hay=(p.uk.name+' '+p.ru.name+' '+p.uk.pack+' '+p.ru.pack+' '+gmap[p.group].uk+' '+gmap[p.group].ru).toLowerCase();
+  return q.split(/\s+/).every(function(w){return hay.indexOf(w)>=0});
+}
+function filtersBar(){
+  var T=FT[st.lang], el=$('#filters'); if(!el)return;
+  function row(key,label,opts){
+    var cnt={},tot=0; C.products.forEach(function(p){if(passes(p,key)){cnt[p[key]]=(cnt[p[key]]||0)+1;tot++}});
+    var h='<div class="frow2"><span class="flb">'+esc(label)+'</span><div class="subs">'+
+      '<button type="button" class="sub'+(st[key]==='all'?' on':'')+'" data-f="'+key+'" data-v="all">'+esc(T.all)+' <em>'+tot+'</em></button>';
+    opts.forEach(function(o){var n=cnt[o[0]]||0; if(!n&&st[key]!==o[0])return;
+      h+='<button type="button" class="sub'+(st[key]===o[0]?' on':'')+'" data-f="'+key+'" data-v="'+o[0]+'">'+esc(typeof o[1]==='string'?o[1]:o[1][st.lang])+' <em>'+n+'</em></button>'});
+    return h+'</div></div>';
+  }
+  el.innerHTML=row('brand',T.brand,BRANDS)+row('form',T.form,FORMS)+((st.brand!=='all'||st.form!=='all')?'<button type="button" class="catrst" data-freset="1">✕ '+esc(T.reset)+'</button>':'');
+}
+function list(){
+  var arr=C.products.filter(function(p){return passes(p)});
+  filtersBar();
   if(st.sort==='asc')arr=arr.slice().sort(function(a,b){return a.price-b.price});
   if(st.sort==='desc')arr=arr.slice().sort(function(a,b){return b.price-a.price});
   $('#count').textContent=t('count')+': '+arr.length;
@@ -419,6 +438,8 @@ document.addEventListener('click',function(e){
   a=el.closest('[data-gcat]'); if(a){st.gcat=a.getAttribute('data-gcat');guideList();return}
   a=el.closest('[data-cat]'); if(a){st.cat=a.getAttribute('data-cat');st.group='all';st.open=false;catbar();list();
     var w=$('#catWrap'); if(w&&w.getBoundingClientRect().top<0)w.scrollIntoView({block:'start'}); return}
+  a=el.closest('[data-f]'); if(a){st[a.getAttribute('data-f')]=a.getAttribute('data-v');list();return}
+  if(el.closest('[data-freset]')){st.brand='all';st.form='all';list();return}
   a=el.closest('[data-grp]'); if(a){st.group=a.getAttribute('data-grp');catbar();list();return}
   if(st.open&&!el.closest('#catWrap')){st.open=false;catbar()}
   var l=el.closest('.lang button'); if(l){st.lang=l.getAttribute('data-lang');try{localStorage.setItem('bf_lang',st.lang)}catch(x){} all()}
