@@ -298,3 +298,19 @@ html[data-theme=dark] .hero .hero-img{opacity:.88}
 @media(max-width:430px){.brand b{display:block;font-size:19px;white-space:nowrap}.brand-mark{width:26px;height:26px}.brand{gap:5px}.guidelink{padding:6px 9px;font-size:12px}.top-nav{gap:4px}.top-in{gap:6px}}
 @media(max-width:360px){.brand b{font-size:16px}.guidelink{padding:6px 7px;font-size:11px}}
 @media(max-width:430px){.brand b{font-size:17px}.themebtn{width:28px;height:28px;font-size:13px}.cartbtn{width:30px;height:30px;font-size:14px}.lang button{padding:5px 6px;font-size:11px}.brand-mark{width:22px;height:22px}.top .wrap{padding:0 10px}}
+
+.brand-logo{display:block;height:50px;width:auto}
+html[data-theme=dark] .brand-logo{filter:brightness(0) invert(.92)}
+@media(max-width:560px){.brand-logo{height:40px}}
+@media(max-width:430px){.brand-logo{height:34px}}
+
+.brand{flex-direction:column;align-items:center;gap:2px;justify-content:center}
+.brand-logo{height:42px}
+.brand-tag{display:block;font:500 9.5px/1.1 Inter,system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--green-2);white-space:nowrap}
+html[data-theme=dark] .brand-tag{color:var(--muted)}
+@media(max-width:560px){.brand-logo{height:34px}.brand-tag{font-size:7.5px;letter-spacing:.1em}}
+@media(max-width:430px){.brand-logo{height:30px}.brand-tag{font-size:6.5px;letter-spacing:.07em}}
+.brand-logo{height:44px}
+.brand-tag{font-size:8.5px;letter-spacing:.09em}
+@media(max-width:560px){.brand-logo{height:34px}}
+@media(max-width:430px){.brand-logo{height:30px}}
