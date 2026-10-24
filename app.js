@@ -203,7 +203,7 @@ function list(){
     var d=L(p);
     return '<article class="card"><a class="ph" href="#p='+esc(p.id)+'" aria-label="'+esc(d.name)+'" data-e="'+esc(p.emoji||'💊')+'"><img loading="lazy" src="'+esc(p.photos[0])+'" alt="'+esc(d.name+' '+d.pack)+'"></a>'+
     '<div class="bd"><span class="grp">'+esc(gname(p.group))+'</span><h3><a href="#p='+esc(p.id)+'">'+esc(d.name)+'</a></h3><span class="pack">'+esc(d.pack)+'</span>'+
-    '<div class="row"><span class="price">'+fm(p.price)+'<small> €</small></span><span class="ctl" data-ctl="'+esc(p.id)+'">'+ctl(p)+'</span></div></div>'+cmpBtn(p.id)+'</article>';
+    '<div class="row"><span class="price">'+fm(p.price)+'<small> €</small></span></div><span class="ctl" data-ctl="'+esc(p.id)+'">'+ctl(p)+'</span></div>'+cmpBtn(p.id)+'</article>';
   }).join('');
 }
 function famBlock(p){
