@@ -1,4 +1,5 @@
 (function(){
+var CART='<svg class="ico-cart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 3.5h2.7l2.1 11.2a1.5 1.5 0 0 0 1.5 1.2h8.2a1.5 1.5 0 0 0 1.5-1.1L20.4 8H6.2"/><circle cx="9.5" cy="20" r="1.3"/><circle cx="17" cy="20" r="1.3"/></svg>';
 'use strict';
 var C=window.CATALOG, TG='https://t.me/AresLuminis';
 var F={cart:true,arrows:true}; /* переключатели функций */
@@ -59,7 +60,7 @@ function buyUrl(p){return TG+'?text='+encodeURIComponent(st.lang==='ru'?p.order_
 function ctl(p){
   if(!F.cart)return '<a class="pill" target="_blank" rel="noopener" href="'+buyUrl(p)+'">'+t('buy')+'</a>';
   var q=cart[p.id];
-  if(!q)return '<button type="button" class="pill add" data-add="'+esc(p.id)+'">🛒 '+t('add')+'</button>';
+  if(!q)return '<button type="button" class="pill add" data-add="'+esc(p.id)+'">'+CART+t('add')+'</button>';
   return '<div class="step"><button type="button" data-dec="'+esc(p.id)+'" aria-label="−">−</button><span>'+q+'</span><button type="button" data-inc="'+esc(p.id)+'" aria-label="+">+</button></div>';
 }
 function cartChanged(){
@@ -89,7 +90,7 @@ function copyText(s,done){
 }
 function renderDrawer(){
   var ids=Object.keys(cart), box=$('#drawerBody'), foot=$('#drawerFoot');
-  $('#drawerTitle').textContent='🛒 '+t('cart')+(ids.length?' · '+cartN():'');
+  $('#drawerTitle').textContent=t('cart')+(ids.length?' · '+cartN():'');
   $('#drawerClose').setAttribute('aria-label',t('close'));
   if(!ids.length&&done){box.innerHTML='<div class="okbox"><div class="okic">✅</div><h4>'+t('okTitle')+'</h4><p>'+t('okText')+'</p><p class="note">'+t('okNo')+': <b>'+esc(done.no)+'</b></p><button type="button" class="pill big" data-closecart>'+t('okBtn')+'</button></div>';foot.innerHTML='';return}
   if(!ids.length){box.innerHTML='<p class="empty">'+t('cartEmpty')+'</p>';foot.innerHTML='';return}
