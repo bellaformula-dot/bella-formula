@@ -53,27 +53,40 @@
 <main class="wrap" id="app">
   <section id="listView">
     <div class="hero">
-      <div class="hero-text">
+      <div class="hero-left">
+        <p class="hero-kicker" data-i="kicker">NATURALE. ITALIANA. PER TE.</p>
         <h1 data-i="h1"></h1>
-        <p data-i="sub"></p>
+        <p class="hero-sub" data-i="sub"></p>
         <div class="hero-actions">
           <button type="button" class="pill" id="heroCatalog">Смотреть каталог</button>
           <button type="button" class="pill ghost" id="heroGoals">Подбор по целям</button>
+        </div>
+      </div>
+      <div class="hero-right" aria-hidden="true">
+        <div class="hero-visual">
+          <div class="hero-bottle hero-bottle-1">
+            <img src="img/sport-4/1.jpg" alt="" loading="lazy">
+          </div>
+          <div class="hero-bottle hero-bottle-2">
+            <img src="img/sport-29/1.jpg" alt="" loading="lazy">
+          </div>
         </div>
       </div>
     </div>
 
     <div class="quick-cats" id="quickCats"></div>
 
-    <div class="tools">
-      <input id="q" type="search" autocomplete="off" data-ph="search">
-      <select id="sort" aria-label="sort"></select>
+    <div class="catalog-start" id="catalogStart">
+      <div class="tools">
+        <input id="q" type="search" autocomplete="off" data-ph="search">
+        <select id="sort" aria-label="sort"></select>
+      </div>
+      <div class="catwrap" id="catWrap"></div>
+      <div class="filters" id="filters"></div>
+      <div class="count" id="count"></div>
+      <div class="grid" id="grid"></div>
+      <p class="empty" id="empty" hidden data-i="empty"></p>
     </div>
-    <div class="catwrap" id="catWrap"></div>
-    <div class="filters" id="filters"></div>
-    <div class="count" id="count"></div>
-    <div class="grid" id="grid"></div>
-    <p class="empty" id="empty" hidden data-i="empty"></p>
   </section>
 
   <section id="detailView" hidden></section>
