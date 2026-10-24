@@ -4,7 +4,7 @@ var C=window.CATALOG, TG='https://t.me/AresLuminis';
 var F={cart:true,arrows:true}; /* переключатели функций */
 var ORDER_API='https://bf-orders.ironflagqaz.workers.dev'; /* адрес Cloudflare Worker; пусто = заказ через ссылку Telegram */
 var T={
- uk:{tagline:'БАДи та вітаміни з Італії',kicker:'NATURALE. ITALIANA. PER TE.',h1:'Спортивне харчування та вітаміни з Італії',sub:'Склад, дозування й ціни — все на одній сторінці. Додайте товари в кошик і надішліть замовлення в Telegram одним натисканням.',
+ uk:{tagline:'БАДи та вітаміни з Італії',h1:'Спортивне харчування та вітаміни з Італії',sub:'Склад, дозування й ціни — все на одній сторінці. Додайте товари в кошик і надішліть замовлення в Telegram одним натисканням.',
   buy:'Купити',search:'Пошук за назвою…',count:'Товарів',back:'← До каталогу',channel:'Telegram-канал',empty:'Нічого не знайдено. Спробуйте інший запит.',
   sortDef:'За замовчуванням',sortAsc:'Спочатку дешевші',sortDesc:'Спочатку дорожчі',comp:'Склад',how:'Як приймати',warn:'Застереження',pack:'Порівняння упаковок',perDay:'за день',rec:'найвигідніше',cur:'ця',
   recLine:'Чим менша упаковка, тим дорожчий кожен день прийому. Рекомендуємо:',best:'Це найвигідніша упаковка в лінійці.',weeks:'На 12 тижнів прийому',packs:'уп.',
@@ -14,7 +14,7 @@ var T={
   cartHint:'Відкриється чат Telegram із готовим повідомленням — залишиться натиснути «Надіслати».',
   fName:'Ваше ім’я',fContact:'Телефон або @username у Telegram',fComment:'Коментар до замовлення (необов’язково)',send:'Надіслати замовлення',sending:'Надсилаємо…',needFields:'Вкажіть ім’я та телефон або @username — щоб ми могли зв’язатися.',errSend:'Не вдалося надіслати. Спробуйте ще раз або напишіть нам у Telegram.',okTitle:'Замовлення прийнято!',okText:'Ми підтвердимо наявність і суму та зв’яжемося з вами найближчим часом.',okNo:'Номер замовлення',okBtn:'Закрити',orTg:'Або напишіть у Telegram',sendHint:'Ми підтвердимо наявність і суму, а потім надішлемо реквізити для оплати.',longHint:'Замовлення велике: текст скопійовано, вставте його в чат Telegram.',
   orderHi:'Вітаю! Хочу замовити:',orderTotal:'Разом',orderSrc:'Замовлення з сайту Bella Formula',prev:'Попереднє фото',next:'Наступне фото',pcs:'шт.',items:'позицій',guide:'Про товари',gTitle:'Про товари: що це і для чого',gSub:'Докладні статті про добавки, вітаміни та мінерали — для чого потрібні, кому підходять, як приймати і на що звернути увагу.',gSearch:'Пошук статті…',gAll:'Усі теми',gBack:'← До статей',gRelated:'Товари за темою',gRead:'Читати про це',gEmpty:'Статей не знайдено.',gLoading:'Завантаження…',gErr:'Не вдалося завантажити статтю. Оновіть сторінку.',gCount:'Статей',gMore:'Читати →'},
- ru:{tagline:'БАДы и витамины из Италии',kicker:'NATURALE. ITALIANA. PER TE.',h1:'Спортивное питание и витамины из Италии',sub:'Состав, дозировки и цены — всё на одной странице. Добавьте товары в корзину и отправьте заказ в Telegram одним нажатием.',
+ ru:{tagline:'БАДы и витамины из Италии',h1:'Спортивное питание и витамины из Италии',sub:'Состав, дозировки и цены — всё на одной странице. Добавьте товары в корзину и отправьте заказ в Telegram одним нажатием.',
   buy:'Купить',search:'Поиск по названию…',count:'Товаров',back:'← В каталог',channel:'Telegram-канал',empty:'Ничего не найдено. Попробуйте другой запрос.',
   sortDef:'По умолчанию',sortAsc:'Сначала дешевле',sortDesc:'Сначала дороже',comp:'Состав',how:'Как принимать',warn:'Предупреждения',pack:'Сравнение упаковок',perDay:'в день',rec:'самая выгодная',cur:'эта',
   recLine:'Чем меньше упаковка, тем дороже каждый день приёма. Рекомендуем:',best:'Это самая выгодная упаковка в линейке.',weeks:'На 12 недель приёма',packs:'уп.',
@@ -139,15 +139,6 @@ function closeCart(){done=null;$('#drawer').classList.remove('on');$('#veil').hi
 
 /* ---------- КАТЕГОРИИ ---------- */
 function counts(){var c={all:C.products.length,cat:{}};C.products.forEach(function(p){c[p.group]=(c[p.group]||0)+1;var k=catOf[p.group].k;c.cat[k]=(c.cat[k]||0)+1});return c}
-function quickCats(){
-  var n=counts(), box=$('#quickCats'); if(!box)return;
-  var h='<button type="button" class="qcat'+(st.cat==='all'?' on':'')+'" data-cat="all"><span class="qe">✦</span> '+t('allCats')+' <em>'+n.all+'</em></button>';
-  CATS.forEach(function(c){
-    if(!n.cat[c.k])return;
-    h+='<button type="button" class="qcat'+(st.cat===c.k?' on':'')+'" data-cat="'+c.k+'"><span class="qe">'+esc(c.e)+'</span> '+esc(c[st.lang])+' <em>'+n.cat[c.k]+'</em></button>';
-  });
-  box.innerHTML=h;
-}
 function catbar(){
   var n=counts(), cur=null, h='';
   CATS.forEach(function(c){if(c.k===st.cat)cur=c});
@@ -164,7 +155,6 @@ function catbar(){
     h+='</div>';
   }
   $('#catWrap').innerHTML=h;
-  quickCats();
 }
 function applyStatic(){
   document.documentElement.lang=st.lang;
@@ -175,9 +165,6 @@ function applyStatic(){
   document.title='Bella Formula — '+t('tagline');
   document.querySelectorAll('.lang button').forEach(function(b){b.setAttribute('aria-pressed',b.getAttribute('data-lang')===st.lang)});
   var s=$('#sort'); s.innerHTML='<option value="def">'+t('sortDef')+'</option><option value="asc">'+t('sortAsc')+'</option><option value="desc">'+t('sortDesc')+'</option>'; s.value=st.sort;
-  var hc=$('#heroCatalog'), hg=$('#heroGoals');
-  if(hc)hc.textContent=st.lang==='ru'?'Смотреть каталог':'Дивитися каталог';
-  if(hg)hg.textContent=st.lang==='ru'?'Подбор по целям':'Підбір за цілями';
 }
 var BRANDS=[['bandini','Bandini'],['aldous','Aldous'],['yamamoto','Yamamoto'],['philautia','Philautia']];
 var FORMS=[['cap',{uk:'Капсули',ru:'Капсулы'}],['tab',{uk:'Таблетки',ru:'Таблетки'}],['gum',{uk:'Цукерки',ru:'Конфеты'}],['pow',{uk:'Порошок',ru:'Порошок'}],['drop',{uk:'Краплі та рідини',ru:'Капли и жидкости'}]];
@@ -448,16 +435,6 @@ document.addEventListener('click',function(e){
   if(el.closest('#copyOrder')){var b=el.closest('#copyOrder');copyText(orderText(),function(){b.textContent=t('copied');setTimeout(function(){b.textContent=t('copy')},1800)});return}
   a=el.closest('#goOrder'); if(a){ if(a.getAttribute('data-long')){copyText(orderText(),function(){var n=$('#cartNote');if(n)n.textContent=t('longHint')})} return}
   if(el.closest('#catBtn')){st.open=!st.open;catbar();return}
-  if(el.closest('#heroCatalog')){
-    st.cat='all';st.group='all';st.open=false;catbar();list();
-    var tw=$('#tools')||$('#q'); if(tw)tw.scrollIntoView({behavior:'smooth',block:'start'});
-    return;
-  }
-  if(el.closest('#heroGoals')){
-    st.open=true;catbar();
-    var cw=$('#catWrap'); if(cw)cw.scrollIntoView({behavior:'smooth',block:'start'});
-    return;
-  }
   a=el.closest('[data-gcat]'); if(a){st.gcat=a.getAttribute('data-gcat');guideList();return}
   a=el.closest('[data-cat]'); if(a){st.cat=a.getAttribute('data-cat');st.group='all';st.open=false;catbar();list();
     var w=$('#catWrap'); if(w&&w.getBoundingClientRect().top<0)w.scrollIntoView({block:'start'}); return}
@@ -487,7 +464,7 @@ all();
   function apply(d){
     if(d)root.setAttribute('data-theme','dark');else root.removeAttribute('data-theme');
     if(b){b.textContent=d?'☀️':'🌙';b.setAttribute('aria-pressed',d?'true':'false')}
-    if(m)m.setAttribute('content',d?'#121A16':'#F7F4EE');
+    if(m)m.setAttribute('content',d?'#0f1b26':'#f1f8fd');
   }
   apply(root.getAttribute('data-theme')==='dark');
   try{var mq=matchMedia('(prefers-color-scheme: dark)');var fn=function(e){var s=null;try{s=localStorage.getItem('bf_theme')}catch(x){}if(!s)apply(e.matches)};mq.addEventListener?mq.addEventListener('change',fn):mq.addListener&&mq.addListener(fn)}catch(e){}

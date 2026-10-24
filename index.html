@@ -17,34 +17,20 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script>(function(){var t=null;try{t=localStorage.getItem("bf_theme")}catch(e){}var d=t?t==="dark":(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches);if(d)document.documentElement.setAttribute("data-theme","dark")})()</script>
-<meta name="theme-color" content="#F7F4EE">
+<meta name="theme-color" content="#f1f8fd">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header class="top">
   <div class="wrap top-in">
-    <a class="brand" href="#" id="brand">
-      <span class="brand-logo">
-        <svg class="brand-leaf" viewBox="0 0 48 22" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <path d="M8 18C4 11 3 5 8 1C13 5 12 11 8 18Z" fill="currentColor"/>
-          <path d="M18 20C13 12 12 4 18 0C24 4 23 12 18 20Z" fill="currentColor"/>
-          <path d="M28 18C24 11 23 5 28 1C33 5 32 11 28 18Z" fill="currentColor"/>
-          <path d="M38 16C35 11 34 5 38 2C42 5 41 11 38 16Z" fill="currentColor"/>
-        </svg>
-        <span class="brand-name">Bella Formula</span>
-        <svg class="brand-wave" viewBox="0 0 170 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <path d="M2 6C35 1 55 8 85 4C115 1 140 7 168 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-        </svg>
-      </span>
-      <small data-i="tagline"></small>
-    </a>
+    <a class="brand" href="#" id="brand"><span class="brand-mark">🌿</span><span><b>Bella Formula</b><small data-i="tagline"></small></span></a>
     <nav class="top-nav">
       <a class="pill guidelink" id="guideLink" href="#guide"><span class="ge">📖</span><span data-i="guide"></span></a>
       <a class="pill ghost" id="tgChannel" href="https://t.me/bella_formula_italy" target="_blank" rel="noopener"></a>
       <button type="button" class="cartbtn" id="cmpBtn" hidden>⚖️<b id="cmpN">0</b></button>
-      <button type="button" class="cartbtn" id="cartBtn">🛒<b id="cartN" hidden>0</b></button>
+        <button type="button" class="cartbtn" id="cartBtn">🛒<b id="cartN" hidden>0</b></button>
       <button type="button" class="themebtn" id="themeBtn" aria-label="Тема / Theme">🌙</button>
-      <div class="lang" role="group" aria-label="Language">
+        <div class="lang" role="group" aria-label="Language">
         <button type="button" data-lang="uk">UA</button><button type="button" data-lang="ru">RU</button>
       </div>
     </nav>
@@ -54,43 +40,18 @@
 <main class="wrap" id="app">
   <section id="listView">
     <div class="hero">
-      <div class="hero-left">
-        <p class="hero-kicker" data-i="kicker">NATURALE. ITALIANA. PER TE.</p>
-        <h1 data-i="h1"></h1>
-        <p class="hero-sub" data-i="sub"></p>
-        <div class="hero-actions">
-          <button type="button" class="pill" id="heroCatalog">Смотреть каталог</button>
-          <button type="button" class="pill ghost" id="heroGoals">Подбор по целям</button>
-        </div>
-      </div>
-      <div class="hero-right" aria-hidden="true">
-        <div class="hero-stage">
-          <div class="hero-leaves"></div>
-          <div class="hero-stone">
-            <div class="hero-bottle hero-bottle-1">
-              <img src="img/sport-4/1.jpg" alt="" loading="lazy">
-            </div>
-            <div class="hero-bottle hero-bottle-2">
-              <img src="img/sport-29/1.jpg" alt="" loading="lazy">
-            </div>
-          </div>
-        </div>
-      </div>
+      <h1 data-i="h1"></h1>
+      <p data-i="sub"></p>
     </div>
-
-    <div class="quick-cats" id="quickCats"></div>
-
-    <div class="catalog-start" id="catalogStart">
-      <div class="tools">
-        <input id="q" type="search" autocomplete="off" data-ph="search">
-        <select id="sort" aria-label="sort"></select>
-      </div>
-      <div class="catwrap" id="catWrap"></div>
-      <div class="filters" id="filters"></div>
-      <div class="count" id="count"></div>
-      <div class="grid" id="grid"></div>
-      <p class="empty" id="empty" hidden data-i="empty"></p>
+    <div class="tools">
+      <input id="q" type="search" autocomplete="off" data-ph="search">
+      <select id="sort" aria-label="sort"></select>
     </div>
+    <div class="catwrap" id="catWrap"></div>
+    <div class="filters" id="filters"></div>
+    <div class="count" id="count"></div>
+    <div class="grid" id="grid"></div>
+    <p class="empty" id="empty" hidden data-i="empty"></p>
   </section>
 
   <section id="detailView" hidden></section>
