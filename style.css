@@ -1,15 +1,15 @@
 :root{
-  --bg:#f1f8fd; --card:#ffffff; --ink:#17324a; --muted:#587389; --line:#d3e6f3;
-  --green:#1d6fae; --green-2:#14578c; --terra:#c9532a; --chip:#e1f0fa; --chip-on:#d4eafa;
-  --shadow:0 1px 2px rgba(23,50,74,.06),0 8px 24px rgba(40,110,170,.10);
+  --bg:#faf5ea; --card:#fffdf8; --ink:#1f3527; --muted:#6a7565; --line:#e8e0cd;
+  --green:#6f8758; --green-2:#55703f; --terra:#b7653a; --chip:#f0ead9; --chip-on:#e3ead4;
+  --shadow:0 1px 2px rgba(60,70,40,.06),0 8px 24px rgba(90,110,60,.10);
   --r:16px;
 }
 html[data-theme=dark]{
-  --bg:#0f1b26; --card:#162534; --ink:#e8f1f8; --muted:#9db3c4; --line:#26384a;
-  --green:#4fa8e8; --green-2:#7bc0f0; --terra:#f08a62; --chip:#1e3144; --chip-on:#21415c;
+  --bg:#141a15; --card:#1c241d; --ink:#ece8da; --muted:#a4ae9c; --line:#2d392e;
+  --green:#9bb77f; --green-2:#b4cc9a; --terra:#e29a6c; --chip:#243026; --chip-on:#2f4130;
   --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.28);
 }
-html[data-theme=dark] .pill:not(.ghost),html[data-theme=dark] .chip[aria-selected=true],html[data-theme=dark] .lang button[aria-pressed=true],html[data-theme=dark] .crow.on,html[data-theme=dark] .sub.on,html[data-theme=dark] .step button{color:#08202f}
+html[data-theme=dark] .pill:not(.ghost),html[data-theme=dark] .chip[aria-selected=true],html[data-theme=dark] .lang button[aria-pressed=true],html[data-theme=dark] .crow.on,html[data-theme=dark] .sub.on,html[data-theme=dark] .step button{color:#14200f}
 .themebtn{border:1px solid var(--line);background:var(--card);color:var(--ink);width:38px;height:38px;border-radius:999px;font-size:17px;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0}
 .themebtn:hover{border-color:var(--green)}
 *{box-sizing:border-box}
@@ -267,3 +267,34 @@ a.lnk{text-decoration:none;display:inline-block}
 .cmpt tr.diff td{font-weight:500}
 .filters{margin:10px 0 4px}.frow2{display:flex;align-items:flex-start;gap:10px;margin-top:8px}.frow2 .subs{margin-top:0;flex:1}.flb{flex:0 0 78px;font:600 13px Inter,sans-serif;color:var(--muted);padding-top:8px}.filters .catrst{margin-top:8px;padding:7px 14px}
 @media(max-width:560px){.frow2{flex-direction:column;gap:4px}.flb{flex:none;padding-top:0}}
+
+/* ===== Bella Formula: кремово-оливковый стиль ===== */
+h1,h2,.brand b,.price{font-family:"Cormorant Garamond",Fraunces,Georgia,serif;font-weight:600}
+.brand{gap:8px}
+.brand-mark{display:inline-flex;width:34px;height:34px;color:var(--green-2)}
+.brand-mark svg{width:100%;height:100%}
+.brand b{font-size:26px;letter-spacing:.005em;color:var(--ink)}
+.brand small{letter-spacing:.14em;text-transform:uppercase;font-size:9.5px;color:var(--muted)}
+.top{background:color-mix(in srgb,var(--bg) 90%,transparent)}
+.hero{position:relative;display:grid;grid-template-columns:1.05fr 1fr;align-items:center;gap:8px;margin:18px 0 10px;padding:0;border-radius:24px;overflow:hidden;background:#faf3e9;border:1px solid var(--line)}
+.hero .hero-text{padding:34px 8px 34px 34px;position:relative;z-index:1}
+.hero h1{font-size:clamp(32px,4.6vw,56px);line-height:1.04;margin:0 0 12px;color:#1f3527;letter-spacing:-.005em}
+.hero p{color:#4d5b49;font-size:16.5px;max-width:42ch}
+.hero .hero-img{align-self:stretch;min-height:240px;background:url(hero.jpg) center right/cover no-repeat;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 22%);mask-image:linear-gradient(90deg,transparent 0,#000 22%)}
+.hero .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.hero .badges span{font-size:13px;color:#4d5b49;background:#fffdf8;border:1px solid var(--line);border-radius:999px;padding:6px 12px}
+html[data-theme=dark] .hero{background:#1c241d}
+html[data-theme=dark] .hero h1{color:var(--ink)}
+html[data-theme=dark] .hero p,html[data-theme=dark] .hero .badges span{color:var(--muted)}
+html[data-theme=dark] .hero .badges span{background:#243026}
+html[data-theme=dark] .hero .hero-img{opacity:.88}
+.pill,.chip,.lang button,.cartbtn,.themebtn{border-radius:999px}
+@media(max-width:760px){
+  .hero{grid-template-columns:1fr}
+  .hero .hero-text{padding:24px 20px 4px}
+  .hero .hero-img{min-height:210px;-webkit-mask-image:linear-gradient(180deg,transparent 0,#000 22%);mask-image:linear-gradient(180deg,transparent 0,#000 22%)}
+}
+@media(max-width:560px){.brand b{font-size:21px}}
+@media(max-width:430px){.brand b{display:block;font-size:19px;white-space:nowrap}.brand-mark{width:26px;height:26px}.brand{gap:5px}.guidelink{padding:6px 9px;font-size:12px}.top-nav{gap:4px}.top-in{gap:6px}}
+@media(max-width:360px){.brand b{font-size:16px}.guidelink{padding:6px 7px;font-size:11px}}
+@media(max-width:430px){.brand b{font-size:17px}.themebtn{width:28px;height:28px;font-size:13px}.cartbtn{width:30px;height:30px;font-size:14px}.lang button{padding:5px 6px;font-size:11px}.brand-mark{width:22px;height:22px}.top .wrap{padding:0 10px}}

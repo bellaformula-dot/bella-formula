@@ -464,7 +464,7 @@ all();
   function apply(d){
     if(d)root.setAttribute('data-theme','dark');else root.removeAttribute('data-theme');
     if(b){b.textContent=d?'☀️':'🌙';b.setAttribute('aria-pressed',d?'true':'false')}
-    if(m)m.setAttribute('content',d?'#0f1b26':'#f1f8fd');
+    if(m)m.setAttribute('content',d?'#141a15':'#faf5ea');
   }
   apply(root.getAttribute('data-theme')==='dark');
   try{var mq=matchMedia('(prefers-color-scheme: dark)');var fn=function(e){var s=null;try{s=localStorage.getItem('bf_theme')}catch(x){}if(!s)apply(e.matches)};mq.addEventListener?mq.addEventListener('change',fn):mq.addListener&&mq.addListener(fn)}catch(e){}
