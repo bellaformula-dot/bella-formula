@@ -341,3 +341,25 @@ html[data-theme=dark] body::before,html[data-theme=dark] body::after{opacity:.16
 .top{z-index:20}
 @media(max-width:1100px){body::before,body::after{width:120px;opacity:.28}}
 @media(max-width:700px){body::before,body::after{display:none}}
+
+/* ===== v4: фон за фото и рамки как в шаблоне ===== */
+:root{--card:#fcf8ef;--photo:#fcf8ef}
+html[data-theme=dark]{--photo:#ffffff}
+.card{border-radius:16px;border:1px solid #eadfca;background:var(--card);box-shadow:0 1px 2px rgba(80,70,40,.05),0 6px 18px rgba(100,90,50,.08)}
+.card .ph{background:var(--photo);padding:10px 10px 0}
+.card .ph img{mix-blend-mode:multiply}
+.gal .main{background:var(--photo);border:1px solid #eadfca;border-radius:16px;box-shadow:0 1px 2px rgba(80,70,40,.05),0 6px 18px rgba(100,90,50,.08)}
+.gal .main img,.gal .main .fr{mix-blend-mode:multiply}
+.thumbs button{background:var(--photo);border:1px solid #eadfca;border-radius:10px}
+.thumbs button[aria-current=true]{border:2px solid var(--green)}
+.thumbs img,.thumbs .fr{mix-blend-mode:multiply}
+.cth,.cmpt .cph,.rcard .ph,.acard .ph:not(.cv){background:var(--photo);border:1px solid #eadfca;border-radius:12px}
+.cth img,.cph img,.rcard .ph img,.acard .ph:not(.cv) img{mix-blend-mode:multiply}
+html[data-theme=dark] .card .ph img,html[data-theme=dark] .gal .main img,html[data-theme=dark] .gal .main .fr,html[data-theme=dark] .thumbs img,html[data-theme=dark] .thumbs .fr,html[data-theme=dark] .cth img,html[data-theme=dark] .cph img,html[data-theme=dark] .rcard .ph img{mix-blend-mode:normal}
+html[data-theme=dark]{--card:#1c241d}
+html[data-theme=dark] .card,html[data-theme=dark] .gal .main{border-color:var(--line)}
+body::before,body::after{opacity:.9;width:260px}
+html[data-theme=dark] body::before,html[data-theme=dark] body::after{opacity:.2}
+@media(max-width:1100px){body::before,body::after{width:140px;opacity:.7}}
+@media(max-width:1100px){body::before,body::after{opacity:.38}}
+@media(max-width:900px){body::before,body::after{display:none}}
