@@ -23,14 +23,27 @@
 <body>
 <header class="top">
   <div class="wrap top-in">
-    <a class="brand" href="#" id="brand"><span class="brand-mark">🌿</span><span><b>Bella Formula</b><small data-i="tagline"></small></span></a>
+    <a class="brand" href="#" id="brand">
+      <span class="brand-logo">
+        <svg class="brand-leaf" viewBox="0 0 40 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M12 18C8 12 6 6 10 2C14 6 16 12 12 18Z" fill="currentColor"/>
+          <path d="M20 20C16 13 15 6 20 1C25 6 24 13 20 20Z" fill="currentColor"/>
+          <path d="M28 18C24 12 22 6 26 2C30 6 32 12 28 18Z" fill="currentColor"/>
+        </svg>
+        <span class="brand-name">Bella Formula</span>
+        <svg class="brand-wave" viewBox="0 0 160 8" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M2 5C30 1 50 7 80 4C110 1 130 6 158 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <small data-i="tagline"></small>
+    </a>
     <nav class="top-nav">
       <a class="pill guidelink" id="guideLink" href="#guide"><span class="ge">📖</span><span data-i="guide"></span></a>
       <a class="pill ghost" id="tgChannel" href="https://t.me/bella_formula_italy" target="_blank" rel="noopener"></a>
       <button type="button" class="cartbtn" id="cmpBtn" hidden>⚖️<b id="cmpN">0</b></button>
-        <button type="button" class="cartbtn" id="cartBtn">🛒<b id="cartN" hidden>0</b></button>
+      <button type="button" class="cartbtn" id="cartBtn">🛒<b id="cartN" hidden>0</b></button>
       <button type="button" class="themebtn" id="themeBtn" aria-label="Тема / Theme">🌙</button>
-        <div class="lang" role="group" aria-label="Language">
+      <div class="lang" role="group" aria-label="Language">
         <button type="button" data-lang="uk">UA</button><button type="button" data-lang="ru">RU</button>
       </div>
     </nav>
@@ -40,9 +53,18 @@
 <main class="wrap" id="app">
   <section id="listView">
     <div class="hero">
-      <h1 data-i="h1"></h1>
-      <p data-i="sub"></p>
+      <div class="hero-text">
+        <h1 data-i="h1"></h1>
+        <p data-i="sub"></p>
+        <div class="hero-actions">
+          <button type="button" class="pill" id="heroCatalog">Смотреть каталог</button>
+          <button type="button" class="pill ghost" id="heroGoals">Подбор по целям</button>
+        </div>
+      </div>
     </div>
+
+    <div class="quick-cats" id="quickCats"></div>
+
     <div class="tools">
       <input id="q" type="search" autocomplete="off" data-ph="search">
       <select id="sort" aria-label="sort"></select>

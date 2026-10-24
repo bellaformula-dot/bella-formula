@@ -139,6 +139,15 @@ function closeCart(){done=null;$('#drawer').classList.remove('on');$('#veil').hi
 
 /* ---------- КАТЕГОРИИ ---------- */
 function counts(){var c={all:C.products.length,cat:{}};C.products.forEach(function(p){c[p.group]=(c[p.group]||0)+1;var k=catOf[p.group].k;c.cat[k]=(c.cat[k]||0)+1});return c}
+function quickCats(){
+  var n=counts(), box=$('#quickCats'); if(!box)return;
+  var h='<button type="button" class="qcat'+(st.cat==='all'?' on':'')+'" data-cat="all"><span class="qe">✦</span> '+t('allCats')+' <em>'+n.all+'</em></button>';
+  CATS.forEach(function(c){
+    if(!n.cat[c.k])return;
+    h+='<button type="button" class="qcat'+(st.cat===c.k?' on':'')+'" data-cat="'+c.k+'"><span class="qe">'+esc(c.e)+'</span> '+esc(c[st.lang])+' <em>'+n.cat[c.k]+'</em></button>';
+  });
+  box.innerHTML=h;
+}
 function catbar(){
   var n=counts(), cur=null, h='';
   CATS.forEach(function(c){if(c.k===st.cat)cur=c});
@@ -155,6 +164,7 @@ function catbar(){
     h+='</div>';
   }
   $('#catWrap').innerHTML=h;
+  quickCats();
 }
 function applyStatic(){
   document.documentElement.lang=st.lang;
@@ -165,6 +175,9 @@ function applyStatic(){
   document.title='Bella Formula — '+t('tagline');
   document.querySelectorAll('.lang button').forEach(function(b){b.setAttribute('aria-pressed',b.getAttribute('data-lang')===st.lang)});
   var s=$('#sort'); s.innerHTML='<option value="def">'+t('sortDef')+'</option><option value="asc">'+t('sortAsc')+'</option><option value="desc">'+t('sortDesc')+'</option>'; s.value=st.sort;
+  var hc=$('#heroCatalog'), hg=$('#heroGoals');
+  if(hc)hc.textContent=st.lang==='ru'?'Смотреть каталог':'Дивитися каталог';
+  if(hg)hg.textContent=st.lang==='ru'?'Подбор по целям':'Підбір за цілями';
 }
 var BRANDS=[['bandini','Bandini'],['aldous','Aldous'],['yamamoto','Yamamoto'],['philautia','Philautia']];
 var FORMS=[['cap',{uk:'Капсули',ru:'Капсулы'}],['tab',{uk:'Таблетки',ru:'Таблетки'}],['gum',{uk:'Цукерки',ru:'Конфеты'}],['pow',{uk:'Порошок',ru:'Порошок'}],['drop',{uk:'Краплі та рідини',ru:'Капли и жидкости'}]];
@@ -435,6 +448,16 @@ document.addEventListener('click',function(e){
   if(el.closest('#copyOrder')){var b=el.closest('#copyOrder');copyText(orderText(),function(){b.textContent=t('copied');setTimeout(function(){b.textContent=t('copy')},1800)});return}
   a=el.closest('#goOrder'); if(a){ if(a.getAttribute('data-long')){copyText(orderText(),function(){var n=$('#cartNote');if(n)n.textContent=t('longHint')})} return}
   if(el.closest('#catBtn')){st.open=!st.open;catbar();return}
+  if(el.closest('#heroCatalog')){
+    st.cat='all';st.group='all';st.open=false;catbar();list();
+    var tw=$('#tools')||$('#q'); if(tw)tw.scrollIntoView({behavior:'smooth',block:'start'});
+    return;
+  }
+  if(el.closest('#heroGoals')){
+    st.open=true;catbar();
+    var cw=$('#catWrap'); if(cw)cw.scrollIntoView({behavior:'smooth',block:'start'});
+    return;
+  }
   a=el.closest('[data-gcat]'); if(a){st.gcat=a.getAttribute('data-gcat');guideList();return}
   a=el.closest('[data-cat]'); if(a){st.cat=a.getAttribute('data-cat');st.group='all';st.open=false;catbar();list();
     var w=$('#catWrap'); if(w&&w.getBoundingClientRect().top<0)w.scrollIntoView({block:'start'}); return}
