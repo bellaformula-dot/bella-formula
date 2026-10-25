@@ -437,3 +437,6 @@ html[data-theme=dark]{--photo:#ffffff;--card:#1c241d}
 .hero .hero-img{background-size:cover;background-position:left bottom}
 @media(max-width:900px){.hero .hero-img{aspect-ratio:663/378;background-size:cover;background-position:center bottom}}
 @media(min-width:901px){.hero .hero-img{aspect-ratio:663/378;min-height:0;background-position:left center}}
+
+/* v10: photo covers for articles */
+.acover{aspect-ratio:16/9;max-height:none}
