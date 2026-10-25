@@ -400,16 +400,19 @@ function compareView(){
 }
 document.addEventListener('change',function(e){if(e.target&&e.target.id==='cmpDiff'){cmpDiff=e.target.checked;var y=window.scrollY;compareView();window.scrollTo(0,y)}});
 
-var lastY=0, prevHash='', cmpBackTo='', restoreY=false;
+var lastY=0, prevHash='', cmpBackTo='', restoreY=false, gListY=0;
 function route(){
   galNav=null;
+  var fromHash=prevHash;
   var lv=$('#listView'); if(lv&&!lv.hidden)lastY=window.scrollY;
+  var gvw=$('#guideView'); if(gvw&&!gvw.hidden)gListY=window.scrollY;
   if(location.hash==='#compare'&&prevHash!=='#compare')cmpBackTo=prevHash;
   prevHash=location.hash;
   var m=/^#p=(.+)$/.exec(location.hash), g=/^#g=(.+)$/.exec(location.hash);
   if(m){detail(decodeURIComponent(m[1]));}
   else if(g){article(decodeURIComponent(g[1]))}
-  else if(location.hash==='#guide'){guideList()}
+  else if(location.hash==='#guide'){guideList();
+    if(/^#g=/.test(fromHash)&&gListY>0){var gy=gListY;[0,80,300].forEach(function(ms){setTimeout(function(){window.scrollTo({top:gy,behavior:'instant'})},ms)})}}
   else if(location.hash==='#compare'){compareView()}
   else{hideViews();$('#listView').hidden=false;document.title='Bella Formula — '+t('tagline');
     if(restoreY){restoreY=false;var y=lastY;window.scrollTo({top:y,behavior:'instant'});setTimeout(function(){window.scrollTo({top:y,behavior:'instant'})},60)}}
