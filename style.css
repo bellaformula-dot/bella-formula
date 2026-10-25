@@ -432,3 +432,8 @@ html[data-theme=dark]{--photo:#ffffff;--card:#1c241d}
   .hero h1{font-size:clamp(28px,8vw,40px)}
   .hero .hero-img{min-height:0;height:auto;aspect-ratio:620/338;background-size:cover;background-position:center bottom;-webkit-mask-image:linear-gradient(180deg,transparent 0,#000 18%);mask-image:linear-gradient(180deg,transparent 0,#000 18%)}
 }
+
+/* v9: hero with real jars, no cropping of lids */
+.hero .hero-img{background-size:cover;background-position:left bottom}
+@media(max-width:900px){.hero .hero-img{aspect-ratio:663/378;background-size:cover;background-position:center bottom}}
+@media(min-width:901px){.hero .hero-img{aspect-ratio:663/378;min-height:0;background-position:left center}}
