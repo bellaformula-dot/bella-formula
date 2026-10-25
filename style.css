@@ -480,3 +480,18 @@ html[data-theme=dark] .hbtn:not(.primary),html[data-theme=dark] .hero-feats .fi{
 .hbtn.primary{border:1.5px solid #72895D}
 @media(max-width:420px){.hbtn{min-width:0;flex:1 1 0;padding:0 12px}}
 html[data-theme=dark] .hbtn:not(.primary){border-color:#6f7a4e}
+
+/* v14: template-style feature icons with a thin divider */
+.hero-feats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:500px;margin:26px 0 0;padding:22px 0 0;border-top:1px solid #d9cfba}
+.hero-feats li{flex-direction:column;align-items:center;text-align:center;gap:10px;max-width:none;font-size:14.5px;line-height:1.3;color:#2f3d2f}
+.hero-feats .fi{width:64px;height:64px;border:0;background:#fbf3e4;box-shadow:0 6px 16px rgba(90,70,35,.14),inset 0 1px 0 #fff;color:#1f3527}
+.hero-feats .fi svg{width:30px;height:30px;stroke:none}
+.hero-feats .fi svg[stroke]{stroke:#1f3527}
+@media(max-width:900px){.hero-feats{max-width:none;margin:20px 16px 0;padding-top:16px}.hero-feats .fi{width:52px;height:52px}.hero-feats .fi svg{width:24px;height:24px}.hero-feats li{font-size:12.5px}}
+@media(max-width:600px){.hero-feats{display:grid}}
+html[data-theme=dark] .hero-feats{border-top-color:#33402f}
+html[data-theme=dark] .hero-feats li{color:var(--muted)}
+html[data-theme=dark] .hero-feats .fi{background:#243026;box-shadow:none}
+.hero-feats .fi{width:76px;height:76px}
+.hero-feats .fi svg{width:42px;height:42px}
+@media(max-width:900px){.hero-feats .fi{width:56px;height:56px}.hero-feats .fi svg{width:32px;height:32px}}
