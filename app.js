@@ -167,7 +167,7 @@ function applyStatic(){
   document.querySelectorAll('.lang button').forEach(function(b){b.setAttribute('aria-pressed',b.getAttribute('data-lang')===st.lang)});
   var s=$('#sort'); s.innerHTML='<option value="def">'+t('sortDef')+'</option><option value="asc">'+t('sortAsc')+'</option><option value="desc">'+t('sortDesc')+'</option>'; s.value=st.sort;
 }
-var BRANDS=[['bandini','Bandini'],['aldous','Aldous'],['yamamoto','Yamamoto'],['philautia','Philautia']];
+var BRANDS=[['bandini','Bandini'],['aldous','Aldous'],['yamamoto','Yamamoto']];
 var FORMS=[['cap',{uk:'Капсули',ru:'Капсулы'}],['tab',{uk:'Таблетки',ru:'Таблетки'}],['gum',{uk:'Цукерки',ru:'Конфеты'}],['pow',{uk:'Порошок',ru:'Порошок'}],['drop',{uk:'Краплі та рідини',ru:'Капли и жидкости'}]];
 var FT={uk:{brand:'Бренд',form:'Фасування',all:'Усі',reset:'Скинути фільтри'},ru:{brand:'Бренд',form:'Фасовка',all:'Все',reset:'Сбросить фильтры'}};
 function passes(p,ig){
