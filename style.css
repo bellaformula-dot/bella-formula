@@ -440,3 +440,22 @@ html[data-theme=dark]{--photo:#ffffff;--card:#1c241d}
 
 /* v10: photo covers for articles */
 .acover{aspect-ratio:16/9;max-height:none}
+
+/* v11: borderless full-bleed hero like the template */
+html,body{overflow-x:clip}
+.hero{background:none!important;border:0!important;border-radius:0!important;overflow:visible!important;box-shadow:none!important;
+  margin:6px calc(50% - 50vw) 10px;padding:0 0 0 calc(50vw - 50%);position:relative;
+  grid-template-columns:.88fr 1.12fr;gap:0;align-items:center}
+.hero .hero-text{padding:30px 10px 30px 0}
+.hero .hero-img{align-self:start;min-height:0;aspect-ratio:663/378;background-size:100% auto;background-position:right top;background-repeat:no-repeat;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 11%),linear-gradient(180deg,transparent 0,#000 10%,#000 92%,transparent 100%);
+  mask-image:linear-gradient(90deg,transparent 0,#000 11%),linear-gradient(180deg,transparent 0,#000 10%,#000 92%,transparent 100%);
+  -webkit-mask-composite:source-in;mask-composite:intersect}
+@media(max-width:900px){
+  .hero{grid-template-columns:1fr;padding:0}
+  .hero .hero-text{padding:20px 16px 0}
+  .hero .hero-img{background-size:cover;background-position:center bottom;
+    -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 18%,#000 88%,transparent 100%);mask-image:linear-gradient(180deg,transparent 0,#000 18%,#000 88%,transparent 100%);
+    -webkit-mask-composite:source-over;mask-composite:add}
+}
+html[data-theme=dark] .hero{background:none!important}
