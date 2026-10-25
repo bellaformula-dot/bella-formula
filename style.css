@@ -473,3 +473,10 @@ html[data-theme=dark] .hero{background:none!important}
 @media(max-width:900px){.hero .hero-text{padding-top:20px}.hero-feats li{max-width:none;flex:1 1 100%}}
 html[data-theme=dark] .hbtn:not(.primary),html[data-theme=dark] .hero-feats .fi{background:#243026;border-color:#33402f;color:var(--muted)}
 @media(max-width:600px){.hero-feats{display:none}}
+
+/* v13: equal hero buttons, olive-gold outline */
+.hbtn{min-width:200px;height:50px;padding:0 24px;box-sizing:border-box;font-size:16px}
+.hbtn:not(.primary){border:1.5px solid #b7ae78;background:#fffdf8;color:#3f4b3a}
+.hbtn.primary{border:1.5px solid #72895D}
+@media(max-width:420px){.hbtn{min-width:0;flex:1 1 0;padding:0 12px}}
+html[data-theme=dark] .hbtn:not(.primary){border-color:#6f7a4e}
