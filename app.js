@@ -163,7 +163,7 @@ function applyStatic(){
   document.documentElement.lang=st.lang;
   document.querySelectorAll('[data-i]').forEach(function(e){e.textContent=t(e.getAttribute('data-i'))});
   $('#q').placeholder=t('search');
-  $('#tgChannel').textContent='✈️ '+t('channel');
+  $('#tgChannel').setAttribute('aria-label',t('channel'));$('#tgChannel').title=t('channel');
   $('#cartBtn').setAttribute('aria-label',t('cart')); $('#cartBtn').hidden=!F.cart;
   document.title='Bella Formula — '+t('tagline');
   document.querySelectorAll('.lang button').forEach(function(b){b.setAttribute('aria-pressed',b.getAttribute('data-lang')===st.lang)});
