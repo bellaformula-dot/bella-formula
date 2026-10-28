@@ -482,3 +482,10 @@ all();
 })();
 
 ;(function(){var b=document.getElementById('heroShop');if(b)b.addEventListener('click',function(){var t=document.querySelector('#listView .tools');if(t)t.scrollIntoView({behavior:'smooth',block:'start'})})})();
+
+;(function(){var box=document.querySelector('.leaves');if(!box)return;
+ if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+ var n=window.innerWidth<700?8:12,cols=['#55703f','#6f8758','#4a6a3a','#9a9461','#5f7a48'],h='';
+ for(var i=0;i<n;i++){var s=20+Math.round(Math.random()*18),x=Math.round(Math.random()*92),d=11+Math.random()*9,w=-(Math.random()*d),a=14+Math.round(Math.random()*22);
+  h+='<i style="--s:'+s+'px;--x:'+x+'%;--d:'+d.toFixed(1)+'s;--w:'+w.toFixed(1)+'s;--a:'+a+';--c:'+cols[i%cols.length]+'"></i>'}
+ box.innerHTML=h;function sz(){box.style.setProperty('--H',box.clientHeight+'px')}sz();window.addEventListener('resize',sz)})();

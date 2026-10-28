@@ -514,3 +514,22 @@ html:not([data-theme=dark]) .cth img,
 html:not([data-theme=dark]) .cph img,
 html:not([data-theme=dark]) .rcard .ph img,
 html:not([data-theme=dark]) .acard .ph:not(.cv) img{filter:brightness(1.042)}
+
+/* v17: hero animation — floating picture + falling olive leaves (transform/opacity only) */
+.hero .hero-img{position:relative;background:none!important}
+.hero .hero-pic{position:absolute;inset:0;background:url(hero.jpg) right top/100% auto no-repeat;will-change:transform;animation:heroFloat 8s ease-in-out infinite alternate}
+@media(max-width:900px){.hero .hero-pic{background-size:cover;background-position:center bottom}}
+@keyframes heroFloat{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(0,-5px,0) scale(1.012)}}
+.leaves{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.leaves i{position:absolute;top:0;display:block;width:var(--s);height:calc(var(--s)*.55);left:var(--x);opacity:0;will-change:transform,opacity;
+  background:var(--c);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 18'%3E%3Cpath d='M1 9C7 0 21 0 31 9 21 18 7 18 1 9Z'/%3E%3C/svg%3E") center/contain no-repeat;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 18'%3E%3Cpath d='M1 9C7 0 21 0 31 9 21 18 7 18 1 9Z'/%3E%3C/svg%3E") center/contain no-repeat;
+  animation:leafFall var(--d) linear var(--w) infinite}
+@keyframes leafFall{
+  0%{transform:translate3d(0,calc(var(--H,380px)*-.06),0) rotate(0deg);opacity:0}
+  8%{opacity:.95}
+  25%{transform:translate3d(calc(var(--a)*1px),calc(var(--H,380px)*.28),0) rotate(70deg)}
+  50%{transform:translate3d(calc(var(--a)*-.8px),calc(var(--H,380px)*.58),0) rotate(150deg)}
+  75%{transform:translate3d(calc(var(--a)*.9px),calc(var(--H,380px)*.86),0) rotate(230deg);opacity:.95}
+  100%{transform:translate3d(0,calc(var(--H,380px)*1.05),0) rotate(300deg);opacity:0}}
+@media(prefers-reduced-motion:reduce){.hero .hero-pic{animation:none}.leaves{display:none}}
