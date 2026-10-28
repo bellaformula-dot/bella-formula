@@ -533,3 +533,6 @@ html:not([data-theme=dark]) .acard .ph:not(.cv) img{filter:brightness(1.042)}
   75%{transform:translate3d(calc(var(--a)*.9px),calc(var(--H,380px)*.86),0) rotate(230deg);opacity:.95}
   100%{transform:translate3d(0,calc(var(--H,380px)*1.05),0) rotate(300deg);opacity:0}}
 @media(prefers-reduced-motion:reduce){.hero .hero-pic{animation:none}.leaves{display:none}}
+
+/* v18: hero picture sits on the bottom edge of the text column (no empty gap under it) */
+@media(min-width:901px){.hero .hero-img{align-self:end}.hero .hero-pic{background-position:right bottom}}
