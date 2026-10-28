@@ -543,3 +543,6 @@ html[data-theme=dark] .soc{background:#243026;color:#9bb585}
 html[data-theme=dark] .soc:hover{background:#2c3a2e}
 @media(max-width:900px){.soc{width:38px;height:38px}.soc svg{width:20px;height:20px}}
 
+
+/* v21: hero picture 1.5cm lower (desktop) */
+@media(min-width:901px){.hero .hero-img{margin-top:57px}}
