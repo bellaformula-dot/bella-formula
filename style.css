@@ -547,7 +547,7 @@ html[data-theme=dark] .soc:hover{background:#2c3a2e}
 /* v21: hero picture 1.5cm lower (desktop) */
 @media(min-width:901px){.hero .hero-img{margin-top:57px}}
 
-/* v22: keep branches/leaves visible: only thin soft edges (picture is cut by its own frame, so soften it slightly) */
+/* v22: same soft top/bottom fade as the mobile picture (looks complete there), thin left/right edge */
 @media(min-width:901px){
-.hero .hero-img{-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 3%,#000 97%,transparent 100%),linear-gradient(180deg,transparent 0,#000 5%,#000 94%,transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 3%,#000 97%,transparent 100%),linear-gradient(180deg,transparent 0,#000 5%,#000 94%,transparent 100%);-webkit-mask-composite:source-in;mask-composite:intersect}
+.hero .hero-img{-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 3%,#000 98%,transparent 100%),linear-gradient(180deg,transparent 0,#000 16%,#000 88%,transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 3%,#000 98%,transparent 100%),linear-gradient(180deg,transparent 0,#000 16%,#000 88%,transparent 100%);-webkit-mask-composite:source-in;mask-composite:intersect}
 }
