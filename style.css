@@ -534,8 +534,6 @@ html:not([data-theme=dark]) .acard .ph:not(.cv) img{filter:brightness(1.042)}
   100%{transform:translate3d(0,calc(var(--H,380px)*1.05),0) rotate(300deg);opacity:0}}
 @media(prefers-reduced-motion:reduce){.hero .hero-pic{animation:none}.leaves{display:none}}
 
-/* v18: hero picture sits on the bottom edge of the text column (no empty gap under it) */
-@media(min-width:901px){.hero .hero-img{align-self:end}.hero .hero-pic{background-position:right bottom}}
 
 /* v19: round line-icon social buttons (Telegram, Instagram) like the Instagram highlight covers */
 .soc{width:42px;height:42px;border-radius:50%;background:#efe9d8;color:#52713f;display:grid;place-items:center;flex:none;transition:transform .15s,box-shadow .15s,background .15s}
@@ -544,3 +542,4 @@ html:not([data-theme=dark]) .acard .ph:not(.cv) img{filter:brightness(1.042)}
 html[data-theme=dark] .soc{background:#243026;color:#9bb585}
 html[data-theme=dark] .soc:hover{background:#2c3a2e}
 @media(max-width:900px){.soc{width:38px;height:38px}.soc svg{width:20px;height:20px}}
+
