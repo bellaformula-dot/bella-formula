@@ -545,7 +545,7 @@ html[data-theme=dark] .soc:hover{background:#2c3a2e}
 
 
 /* v21: hero picture 1.5cm lower (desktop) */
-@media(min-width:901px){.hero .hero-img{margin-top:57px}}
+@media(min-width:901px){.hero .hero-img{margin-top:0;margin-left:-6vw}}
 
 /* v22: same soft top/bottom fade as the mobile picture (looks complete there), thin left/right edge */
 @media(min-width:901px){
