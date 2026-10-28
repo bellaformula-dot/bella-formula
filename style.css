@@ -280,7 +280,7 @@ h1,h2,.brand b,.price{font-family:"Cormorant Garamond",Fraunces,Georgia,serif;fo
 .hero .hero-text{padding:34px 8px 34px 34px;position:relative;z-index:1}
 .hero h1{font-size:clamp(32px,4.6vw,56px);line-height:1.04;margin:0 0 12px;color:#1f3527;letter-spacing:-.005em}
 .hero p{color:#4d5b49;font-size:16.5px;max-width:42ch}
-.hero .hero-img{align-self:stretch;min-height:240px;background:url(hero2.jpg) center right/cover no-repeat;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 22%);mask-image:linear-gradient(90deg,transparent 0,#000 22%)}
+.hero .hero-img{align-self:stretch;min-height:240px;background:url(hero2.jpg?v=54) center right/cover no-repeat;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 22%);mask-image:linear-gradient(90deg,transparent 0,#000 22%)}
 .hero .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
 .hero .badges span{font-size:13px;color:#4d5b49;background:#fffdf8;border:1px solid var(--line);border-radius:999px;padding:6px 12px}
 html[data-theme=dark] .hero{background:#1c241d}
@@ -517,7 +517,7 @@ html:not([data-theme=dark]) .acard .ph:not(.cv) img{filter:brightness(1.042)}
 
 /* v17: hero animation — floating picture + falling olive leaves (transform/opacity only) */
 .hero .hero-img{position:relative;background:none!important}
-.hero .hero-pic{position:absolute;inset:0;background:url(hero2.jpg) right top/100% auto no-repeat;will-change:transform;animation:heroFloat 8s ease-in-out infinite alternate}
+.hero .hero-pic{position:absolute;inset:0;background:url(hero2.jpg?v=54) right top/100% auto no-repeat;will-change:transform;animation:heroFloat 8s ease-in-out infinite alternate}
 @media(max-width:900px){.hero .hero-pic{background-size:cover;background-position:center bottom}}
 @keyframes heroFloat{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(0,-5px,0) scale(1.012)}}
 .leaves{position:absolute;inset:0;overflow:hidden;pointer-events:none}
@@ -544,10 +544,18 @@ html[data-theme=dark] .soc:hover{background:#2c3a2e}
 @media(max-width:900px){.soc{width:38px;height:38px}.soc svg{width:20px;height:20px}}
 
 
-/* v21: hero picture 1.5cm lower (desktop) */
-@media(min-width:901px){.hero .hero-img{margin-top:0;margin-left:-6vw}}
-
-/* v22: same soft top/bottom fade as the mobile picture (looks complete there), thin left/right edge */
+/* v21: hero picture flush with the header (like the approved template): top branches are NOT faded, picture fills column down to the search bar */
 @media(min-width:901px){
-.hero .hero-img{-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 3%,#000 98%,transparent 100%),linear-gradient(180deg,transparent 0,#000 16%,#000 88%,transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 3%,#000 98%,transparent 100%),linear-gradient(180deg,transparent 0,#000 16%,#000 88%,transparent 100%);-webkit-mask-composite:source-in;mask-composite:intersect}
+.hero .hero-img{align-self:stretch;aspect-ratio:auto;margin-top:-6px;margin-left:-6vw;
+ -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 2%),linear-gradient(180deg,#000 0,#000 94%,transparent 100%);
+ mask-image:linear-gradient(90deg,transparent 0,#000 2%),linear-gradient(180deg,#000 0,#000 94%,transparent 100%);
+ -webkit-mask-composite:source-in;mask-composite:intersect}
+.hero .hero-pic{background-size:cover;background-position:right top}
+}
+@media(min-width:1200px){
+.hero .hero-img{margin-left:0;-webkit-mask-image:none;mask-image:none}
+.hero .hero-pic{inset:auto;top:0;bottom:0;right:0;width:1067px;
+ -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 2%),linear-gradient(180deg,#000 0,#000 94%,transparent 100%);
+ mask-image:linear-gradient(90deg,transparent 0,#000 2%),linear-gradient(180deg,#000 0,#000 94%,transparent 100%);
+ -webkit-mask-composite:source-in;mask-composite:intersect}
 }
