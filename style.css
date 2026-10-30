@@ -280,7 +280,7 @@ h1,h2,.brand b,.price{font-family:"Cormorant Garamond",Fraunces,Georgia,serif;fo
 .hero .hero-text{padding:34px 8px 34px 34px;position:relative;z-index:1}
 .hero h1{font-size:clamp(32px,4.6vw,56px);line-height:1.04;margin:0 0 12px;color:#1f3527;letter-spacing:-.005em}
 .hero p{color:#4d5b49;font-size:16.5px;max-width:42ch}
-.hero .hero-img{align-self:stretch;min-height:240px;background:url(hero2.jpg?v=54) center right/cover no-repeat;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 22%);mask-image:linear-gradient(90deg,transparent 0,#000 22%)}
+.hero .hero-img{align-self:stretch;min-height:240px;background:url(hero2.jpg?v=58) center right/cover no-repeat;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 22%);mask-image:linear-gradient(90deg,transparent 0,#000 22%)}
 .hero .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
 .hero .badges span{font-size:13px;color:#4d5b49;background:#fffdf8;border:1px solid var(--line);border-radius:999px;padding:6px 12px}
 html[data-theme=dark] .hero{background:#1c241d}
@@ -435,8 +435,8 @@ html[data-theme=dark]{--photo:#ffffff;--card:#1c241d}
 
 /* v9: hero with real jars, no cropping of lids */
 .hero .hero-img{background-size:cover;background-position:left bottom}
-@media(max-width:900px){.hero .hero-img{aspect-ratio:1024/506;background-size:cover;background-position:center bottom}}
-@media(min-width:901px){.hero .hero-img{aspect-ratio:1024/506;min-height:0;background-position:left center}}
+@media(max-width:900px){.hero .hero-img{aspect-ratio:1536/688;background-size:cover;background-position:center bottom}}
+@media(min-width:901px){.hero .hero-img{aspect-ratio:1536/688;min-height:0;background-position:left center}}
 
 /* v10: photo covers for articles */
 .acover{aspect-ratio:16/9;max-height:none}
@@ -447,7 +447,7 @@ html,body{overflow-x:clip}
   margin:6px calc(50% - 50vw) 10px;padding:0 0 0 calc(50vw - 50%);position:relative;
   grid-template-columns:.88fr 1.12fr;gap:0;align-items:center}
 .hero .hero-text{padding:30px 10px 30px 0}
-.hero .hero-img{align-self:start;min-height:0;aspect-ratio:1024/506;background-size:100% auto;background-position:right top;background-repeat:no-repeat;
+.hero .hero-img{align-self:start;min-height:0;aspect-ratio:1536/688;background-size:100% auto;background-position:right top;background-repeat:no-repeat;
   -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 6%),linear-gradient(180deg,transparent 0,#000 10%,#000 92%,transparent 100%);
   mask-image:linear-gradient(90deg,transparent 0,#000 6%),linear-gradient(180deg,transparent 0,#000 10%,#000 92%,transparent 100%);
   -webkit-mask-composite:source-in;mask-composite:intersect}
@@ -517,7 +517,7 @@ html:not([data-theme=dark]) .acard .ph:not(.cv) img{filter:brightness(1.042)}
 
 /* v17: hero animation — floating picture + falling olive leaves (transform/opacity only) */
 .hero .hero-img{position:relative;background:none!important}
-.hero .hero-pic{position:absolute;inset:0;background:url(hero2.jpg?v=54) right top/100% auto no-repeat;will-change:transform;animation:heroFloat 8s ease-in-out infinite alternate}
+.hero .hero-pic{position:absolute;inset:0;background:url(hero2.jpg?v=58) right top/100% auto no-repeat;will-change:transform;animation:heroFloat 8s ease-in-out infinite alternate}
 @media(max-width:900px){.hero .hero-pic{background-size:cover;background-position:center bottom}}
 @keyframes heroFloat{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(0,-5px,0) scale(1.012)}}
 .leaves{position:absolute;inset:0;overflow:hidden;pointer-events:none}
