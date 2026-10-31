@@ -58,3 +58,4 @@ dialog::backdrop{background:rgba(31,53,39,.35)}
 }
 @media(max-width:560px){.g2,.g3,.g4{grid-template-columns:1fr}h1{font-size:24px}}
 @media print{.side,.stat,.bar,.noprint{display:none!important}.app{display:block}.main{padding:0}body{background:#fff}}
+a.btn{text-decoration:none;color:inherit;display:inline-block}a.btn.p{color:#fff}
