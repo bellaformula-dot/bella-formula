@@ -121,7 +121,7 @@ const viewHome={html(){
   <div class="card kpi"><b>${last?last.eur.toFixed(4):'—'}</b><span>последний курс EUR${last?' ('+esc(last.date)+')':''}</span></div>
   <div class="card kpi"><b>${DB.price_history.length?DB.price_history.length:0}</b><span>записей в истории цен</span></div>
  </div>
- ${noBuy?`<div class="msg warn">У ${noBuy} товаров не указана закупочная цена — без неё не посчитать маржу. Заполни в разделе «Товары» или загрузи из Excel («Цены»).</div>`:''}
+ ${noBuy?`<div class="msg warn">У ${noBuy} товаров не указана закупочная цена — без неё не посчитать наценку. Заполни в разделе «Товары» или загрузи из Excel («Цены»).</div>`:''}
  ${!p.length?`<div class="msg">Справочник пуст. Загрузи товары: «Настройки» → «Первый импорт товаров с сайта».</div>`:''}
  <div class="card"><h2>Что дальше</h2><div class="note">Заказы, приходы, накладные, клиенты и отчёты — следующие этапы.</div></div>`},bind(){}};
 
@@ -135,6 +135,7 @@ function prodList(){
  a.sort((x,y)=>{const A=x[k],B=y[k];if(typeof A==='number'||typeof B==='number'){return (isNaN(A)||A===''?-1e9:A)-(isNaN(B)||B===''?-1e9:B)}return String(A).localeCompare(String(B),'ru',{numeric:true})});
  return a;
 }
+function profit(p){const b=p.buy_eur,s=p.sell_eur;if(b===''||b==null||isNaN(b)||s===''||s==null||isNaN(s))return '<span class="mut">—</span>';return eur(r2(s-b))}
 function margin(p){const b=p.buy_eur,s=p.sell_eur;if(b===''||b==null||isNaN(b)||!b||s===''||isNaN(s))return null;return (s-b)/b*100}
 const viewProducts={html(){
  const u=UI.prod,brands=[...new Set(DB.products.map(p=>p.brand))].filter(Boolean).sort(),cats=[...new Set(DB.products.map(p=>p.category))].filter(Boolean).sort();
@@ -146,12 +147,12 @@ const viewProducts={html(){
   <select id="pb">${opt(brands,u.brand)}</select><select id="pc">${opt(cats,u.cat)}</select>
   <select id="pa"><option value="1" ${u.act==='1'?'selected':''}>Активные</option><option value="0" ${u.act==='0'?'selected':''}>Скрытые</option><option value="all" ${u.act==='all'?'selected':''}>Все</option></select>
   <span class="sp"></span><button class="btn" id="pex">Выгрузить в Excel</button><button class="btn p" id="pad">+ Товар</button></div>
- <div class="card scroll" style="padding:6px"><table><thead><tr>${[['article','Артикул'],['name_ru','Название'],['brand','Бренд'],['pack','Упаковка'],['buy_eur','Закупка €'],['sell_eur','Продажа €'],['m','Маржа']].map(([k,n])=>`<th data-s="${k}" style="cursor:pointer" class="${k==='buy_eur'||k==='sell_eur'||k==='m'?'r':''}">${n}${u.sort===k?' ↓':''}</th>`).join('')}<th></th></tr></thead><tbody>
+ <div class="card scroll" style="padding:6px"><table><thead><tr>${[['article','Артикул'],['name_ru','Название'],['brand','Бренд'],['pack','Упаковка'],['buy_eur','Закупка €'],['sell_eur','Продажа €'],['m','Наценка'],['pr','Прибыль €']].map(([k,n])=>`<th data-s="${k}" style="cursor:pointer" class="${k==='buy_eur'||k==='sell_eur'||k==='m'||k==='pr'?'r':''}">${n}${u.sort===k?' ↓':''}</th>`).join('')}<th></th></tr></thead><tbody>
  ${rows.map(p=>{const m=margin(p);return `<tr class="${p.active==='0'?'hid':''}" data-id="${esc(p.id)}"><td class="mut">${esc(p.article)}</td><td>${esc(p.name_ru)}<div class="note">${esc(p.category)}</div></td><td>${esc(p.brand)}</td><td class="mut">${esc(p.pack)}</td>
  <td class="r"><input class="num" data-f="buy_eur" value="${p.buy_eur===''||isNaN(p.buy_eur)?'':p.buy_eur}" placeholder="—"></td>
  <td class="r"><input class="num" data-f="sell_eur" value="${p.sell_eur===''||isNaN(p.sell_eur)?'':p.sell_eur}" placeholder="—"></td>
- <td class="r m">${m==null?'<span class="mut">—</span>':`<span class="tag ${m<20?'y':''}">${m.toFixed(0)}%</span>`}</td>
- <td class="r"><button class="btn s" data-edit="1">Изменить</button></td></tr>`}).join('')||'<tr><td colspan="8" class="empty">Ничего не найдено</td></tr>'}
+ <td class="r m">${m==null?'<span class="mut">—</span>':`<span class="tag ${m<20?'y':''}">${m.toFixed(0)}%</span>`}</td><td class="r pr">${profit(p)}</td>
+ <td class="r"><button class="btn s" data-edit="1">Изменить</button></td></tr>`}).join('')||'<tr><td colspan="9" class="empty">Ничего не найдено</td></tr>'}
  </tbody></table></div>
  <div class="pager"><button class="btn s" id="pp" ${u.page<=0?'disabled':''}>←</button><span class="mut">стр. ${u.page+1} из ${pages}</span><button class="btn s" id="pn" ${u.page>=pages-1?'disabled':''}>→</button></div>`},
 bind(){
@@ -174,7 +175,7 @@ bind(){
    const old=p[f];
    await save('products',{id,[f]:v});
    await save('price_history',{id:uid(),batch:uid(),date:today(),product_id:id,field:f,old:old===''?'':old,new:v,source:'вручную'});
-   const m=margin(p);$('.m',tr).innerHTML=m==null?'<span class="mut">—</span>':`<span class="tag ${m<20?'y':''}">${m.toFixed(0)}%</span>`;
+   const m=margin(p);$('.m',tr).innerHTML=m==null?'<span class="mut">—</span>':`<span class="tag ${m<20?'y':''}">${m.toFixed(0)}%</span>`;$('.pr',tr).innerHTML=profit(p);
   });
   $('[data-edit]',tr).onclick=()=>editProduct(id);
  });
@@ -200,8 +201,8 @@ function editProduct(id){
  });
 }
 function exportProducts(){
- const rows=prodList().map(p=>({Артикул:p.article,'Название RU':p.name_ru,'Название UA':p.name_uk,Бренд:p.brand,Категория:p.category,Форма:p.form,Упаковка:p.pack,'Закупка €':p.buy_eur,'Продажа €':p.sell_eur,'Маржа %':margin(p)==null?'':r2(margin(p)),Активный:p.active==='0'?'нет':'да'}));
- const wb=XLSX.utils.book_new();const ws=XLSX.utils.json_to_sheet(rows);ws['!cols']=[10,44,44,14,22,12,14,11,11,9,9].map(w=>({wch:w}));
+ const rows=prodList().map(p=>({Артикул:p.article,'Название RU':p.name_ru,'Название UA':p.name_uk,Бренд:p.brand,Категория:p.category,Форма:p.form,Упаковка:p.pack,'Закупка €':p.buy_eur,'Продажа €':p.sell_eur,'Наценка %':margin(p)==null?'':r2(margin(p)),'Прибыль €':(p.buy_eur===''||p.sell_eur===''||isNaN(p.buy_eur)||isNaN(p.sell_eur))?'':r2(p.sell_eur-p.buy_eur),Активный:p.active==='0'?'нет':'да'}));
+ const wb=XLSX.utils.book_new();const ws=XLSX.utils.json_to_sheet(rows);ws['!cols']=[10,44,44,14,22,12,14,11,11,10,10,9].map(w=>({wch:w}));
  XLSX.utils.book_append_sheet(wb,ws,'Товары');XLSX.writeFile(wb,'bella_tovary_'+today()+'.xlsx');
 }
 
