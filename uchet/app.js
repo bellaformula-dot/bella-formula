@@ -55,7 +55,7 @@ function setting(k,def){const r=DB&&DB.settings.find(x=>x.id===k);return r?r.val
 async function setSetting(k,v){await save('settings',{id:k,value:String(v)})}
 
 /* ---------- Layout ---------- */
-const MENU=[['home','Главная'],['orders','Заказы клиентов'],['sales','Продажи'],['purchases','Приходы'],['products','Товары'],['clients','Клиенты'],['suppliers','Поставщики'],['trustees','Доверенные лица'],['prices','Цены'],['rates','Курсы НБУ'],['reports','Отчёты',1],['settings','Настройки']];
+const MENU=[['home','Главная'],['orders','Заказы клиентов'],['sales','Продажи'],['purchases','Приходы'],['products','Товары'],['clients','Клиенты'],['suppliers','Поставщики'],['trustees','Доверенные лица'],['prices','Цены'],['rates','Курсы НБУ'],['reports','Отчёты'],['settings','Настройки']];
 function route(){return (location.hash||'#home').slice(1).split('/')[0]||'home'}
 function shell(inner){
  let cur=route();if(cur==='order')cur='orders';if(cur==='purchase'||cur==='tobuy')cur='purchases';if(cur==='invoice')cur='sales';
@@ -68,7 +68,7 @@ function render(){
  if(!CFG||!DB){root.innerHTML=loginView();bindLogin();return}
  const r=route();
  if(r!=='order')OD=null;if(r!=='purchase')PD=null;
- const V={home:viewHome,products:viewProducts,prices:viewPrices,rates:viewRates,settings:viewSettings,orders:viewOrders,order:viewOrder,purchases:viewPurchases,purchase:viewPurchase,tobuy:viewToBuy,sales:viewSales,invoice:viewInvoice,clients:viewClients,suppliers:viewSuppliers,trustees:viewTrustees}[r];
+ const V={home:viewHome,products:viewProducts,prices:viewPrices,rates:viewRates,settings:viewSettings,orders:viewOrders,order:viewOrder,purchases:viewPurchases,purchase:viewPurchase,tobuy:viewToBuy,sales:viewSales,invoice:viewInvoice,reports:viewReports,clients:viewClients,suppliers:viewSuppliers,trustees:viewTrustees}[r];
  if(!V){root.innerHTML=shell(`<h1>${esc((MENU.find(m=>m[0]===r)||[0,'Раздел'])[1])}</h1><div class="card empty">Этот раздел появится на следующем этапе.</div>`);return}
  root.innerHTML=shell(V.html());
  if(V.bind)V.bind();
@@ -126,7 +126,7 @@ const viewHome={html(){
  ${!p.length?`<div class="msg">Справочник пуст. Загрузи товары: «Настройки» → «Первый импорт товаров с сайта».</div>`:''}
  <div class="card"><h2>Заказы в работе: ${DB.orders.filter(o=>o.status!=='done'&&o.status!=='cancel').length}</h2>${ST.filter(s=>s[0]!=='done'&&s[0]!=='cancel').map(s=>{const n=DB.orders.filter(o=>(o.status||'new')===s[0]).length;return n?`<a href="#orders" class="tag ${s[0]==='new'?'y':''}" style="margin:0 6px 6px 0;text-decoration:none">${s[1]}: ${n}</a>`:''}).join('')||'<div class="note">Пока нет. Создай заказ в разделе «Заказы клиентов».</div>'}</div>
  ${DB.orders.some(o=>o.status==='paid')?`<div class="msg warn">Оплаченных заказов без прихода: <b>${DB.orders.filter(o=>o.status==='paid').length}</b>. <a href="#tobuy">Открыть «К закупке»</a></div>`:''}
- <div class="card"><h2>Что дальше</h2><div class="note">Отчёты (прибыль по периодам, товарам, клиентам) — следующий этап.</div></div>`},bind(){}};
+ <div class="card"><h2>Что дальше</h2><div class="note">Прибыль по периодам, товарам, брендам и клиентам — в разделе «Отчёты».</div></div>`},bind(){}};
 
 /* ---------- Products ---------- */
 function prodList(){
@@ -928,6 +928,101 @@ bind(){
   if(o.rate!==''&&o.pay_date)aoa.push(['','','','',T.topay,r2(d.tot*o.rate)]);
   const ws=XLSX.utils.aoa_to_sheet(aoa);ws['!cols']=[{wch:5},{wch:10},{wch:50},{wch:8},{wch:12},{wch:12}];
   const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,inv.number);XLSX.writeFile(wb,'nakladna_'+inv.number+'.xlsx');
+ };
+}};
+
+/* ---------- Reports ---------- */
+function monthStart(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-01'}
+function isoDate(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+(function(){const n=new Date();UI.rep={from:monthStart(n),to:today(),tab:'months',preset:'month'}})();
+function setPreset(k){
+ const n=new Date(),u=UI.rep;u.preset=k;
+ if(k==='month'){u.from=monthStart(n);u.to=today()}
+ else if(k==='prev'){const a=new Date(n.getFullYear(),n.getMonth()-1,1),b=new Date(n.getFullYear(),n.getMonth(),0);u.from=isoDate(a);u.to=isoDate(b)}
+ else if(k==='quarter'){const q=Math.floor(n.getMonth()/3)*3;u.from=isoDate(new Date(n.getFullYear(),q,1));u.to=today()}
+ else if(k==='year'){u.from=n.getFullYear()+'-01-01';u.to=today()}
+ else if(k==='all'){u.from='';u.to=''}
+}
+function orderEconomics(o){
+ const disc=1-(+o.discount||0)/100;
+ let rev=0,cost=0,costUah=0,act=0,est=0,miss=0,rates=true;const L=[];
+ orderLines(o.id).forEach(l=>{
+  const q=+l.qty||0,r=q*(+l.price_eur||0)*disc;
+  const pl=l.product_id&&DB.purchase_lines.find(x=>x.order_id===o.id&&x.product_id===l.product_id);
+  let c=0,kind='miss';
+  if(pl){const u=plUnitCost(pl);c=q*u.eur;kind='act';if(isNaN(u.rate))rates=false;else costUah+=c*u.rate}
+  else{const p=DB.products.find(x=>x.id===l.product_id);if(p&&p.buy_eur!==''&&!isNaN(p.buy_eur)){c=q*p.buy_eur;kind='est'}}
+  rev+=r;cost+=c;if(kind==='act')act++;else if(kind==='est')est++;else miss++;
+  L.push({l,q,rev:r,cost:c,kind});
+ });
+ const uah=(o.pay_uah===''||o.pay_uah==null||isNaN(o.pay_uah))?NaN:+o.pay_uah;
+ const full=act>0&&!est&&!miss&&rates;
+ return {rev:r2(rev),cost:r2(cost),costUah,act,est,miss,full,L,profit:r2(rev-cost),uah,profitUah:(full&&!isNaN(uah))?uah-costUah:NaN};
+}
+function repOrders(){
+ const u=UI.rep;
+ return DB.orders.filter(o=>o.status!=='cancel'&&o.pay_date&&(!u.from||o.pay_date>=u.from)&&(!u.to||o.pay_date<=u.to)).map(o=>({o,e:orderEconomics(o)}));
+}
+const uahFmt=v=>(v===null||isNaN(v))?'—':Math.round(v).toLocaleString('ru-RU')+' ₴';
+const pctFmt=(p,c)=>c>0?Math.round(p/c*100)+'%':'—';
+function repTable(tab,E){
+ const grp=(keyf,namef)=>{const m={};E.forEach(({o,e})=>{const k=keyf(o);const g=m[k]=m[k]||{name:namef(o,k),n:0,rev:0,cost:0,uah:0,pu:0,puN:0};g.n++;g.rev+=e.rev;g.cost+=e.cost;if(!isNaN(e.uah))g.uah+=e.uah;if(!isNaN(e.profitUah)){g.pu+=e.profitUah;g.puN++}});return Object.values(m)};
+ if(tab==='months'){
+  const rows=grp(o=>o.pay_date.slice(0,7),(o,k)=>k).sort((a,b)=>a.name<b.name?1:-1);
+  return {head:['Месяц','Заказов','Выручка €','Получено ₴','Закупка €','Прибыль €','Наценка','Прибыль ₴ (по факту)'],num:[1,2,3,4,5,6,7],rows:rows.map(g=>[g.name,g.n,eur(r2(g.rev)),uahFmt(g.uah),eur(r2(g.cost)),eur(r2(g.rev-g.cost)),pctFmt(g.rev-g.cost,g.cost),g.puN?uahFmt(g.pu)+' ('+g.puN+' из '+g.n+')':'—']),raw:rows.map(g=>[g.name,g.n,r2(g.rev),Math.round(g.uah),r2(g.cost),r2(g.rev-g.cost),g.cost>0?r2((g.rev-g.cost)/g.cost*100):'',g.puN?Math.round(g.pu):''])};
+ }
+ if(tab==='clients'){
+  const rows=grp(o=>o.client_id,(o)=>clientName(o.client_id)).sort((a,b)=>b.rev-a.rev);
+  return {head:['Клиент','Заказов','Выручка €','Получено ₴','Прибыль €'],num:[1,2,3,4],rows:rows.map(g=>[g.name,g.n,eur(r2(g.rev)),uahFmt(g.uah),eur(r2(g.rev-g.cost))]),raw:rows.map(g=>[g.name,g.n,r2(g.rev),Math.round(g.uah),r2(g.rev-g.cost)])};
+ }
+ // по товарам / брендам: по строкам
+ const m={};
+ E.forEach(({o,e})=>e.L.forEach(x=>{
+  const p=DB.products.find(q=>q.id===x.l.product_id)||{};
+  const k=tab==='brands'?(p.brand||'—'):(x.l.product_id||x.l.name);
+  const g=m[k]=m[k]||{name:tab==='brands'?(p.brand||'—'):((p.article?p.article+' · ':'')+x.l.name),sub:p.brand||'',q:0,rev:0,cost:0,est:0};
+  g.q+=x.q;g.rev+=x.rev;g.cost+=x.cost;if(x.kind!=='act')g.est++;
+ }));
+ const rows=Object.values(m).sort((a,b)=>b.rev-a.rev);
+ if(tab==='brands')return {head:['Бренд','Кол-во','Выручка €','Закупка €','Прибыль €','Наценка'],num:[1,2,3,4,5],rows:rows.map(g=>[g.name,g.q,eur(r2(g.rev)),eur(r2(g.cost)),eur(r2(g.rev-g.cost)),pctFmt(g.rev-g.cost,g.cost)]),raw:rows.map(g=>[g.name,g.q,r2(g.rev),r2(g.cost),r2(g.rev-g.cost),g.cost>0?r2((g.rev-g.cost)/g.cost*100):''])};
+ return {head:['Товар','Бренд','Кол-во','Выручка €','Закупка €','Прибыль €','Наценка'],num:[2,3,4,5,6],rows:rows.map(g=>[g.name+(g.est?' *':''),g.sub,g.q,eur(r2(g.rev)),eur(r2(g.cost)),eur(r2(g.rev-g.cost)),pctFmt(g.rev-g.cost,g.cost)]),raw:rows.map(g=>[g.name,g.sub,g.q,r2(g.rev),r2(g.cost),r2(g.rev-g.cost),g.cost>0?r2((g.rev-g.cost)/g.cost*100):'']),foot:rows.some(g=>g.est)?'* закупка частично по справочнику, а не по приходам':''};
+}
+function openOrdersTable(){
+ const os=DB.orders.filter(o=>o.status!=='done'&&o.status!=='cancel'&&o.status!=='delivered').sort((a,b)=>(a.date+a.number)<(b.date+b.number)?-1:1);
+ return os;
+}
+const viewReports={html(){
+ const u=UI.rep,E=repOrders();
+ let rev=0,cost=0,uah=0,pu=0,puN=0,act=0,est=0;
+ E.forEach(({e})=>{rev+=e.rev;cost+=e.cost;if(!isNaN(e.uah))uah+=e.uah;if(!isNaN(e.profitUah)){pu+=e.profitUah;puN++}if(e.full)act++;else est++});
+ const pr=r2(rev-cost);
+ const presets=[['month','Этот месяц'],['prev','Прошлый месяц'],['quarter','Квартал'],['year','Год'],['all','Всё время']];
+ const tabs=[['months','По месяцам'],['products','Товары'],['brands','Бренды'],['clients','Клиенты'],['open','В работе']].map(([k,n])=>`<a data-t="${k}" class="${u.tab===k?'on':''}">${n}</a>`).join('');
+ let body;
+ if(u.tab==='open'){
+  const os=openOrdersTable();
+  body=`<div class="card scroll"><h2>Незавершённые заказы: ${os.length}</h2><table><thead><tr><th>№</th><th>Дата</th><th>Клиент</th><th class="r">Сумма €</th><th>Оплата</th><th>Статус</th></tr></thead><tbody>${os.map(o=>`<tr data-id="${esc(o.id)}" style="cursor:pointer"><td><b>${esc(o.number)}</b></td><td>${esc(o.date)}</td><td>${esc(clientName(o.client_id))}</td><td class="r">${eur(o.total_eur)}</td><td>${o.pay_date?esc(o.pay_date):'<span class="tag y">не оплачен</span>'}</td><td><span class="tag ${stCls(o.status)}">${esc(stName(o.status))}</span></td></tr>`).join('')||'<tr><td colspan="6" class="empty">Все заказы закрыты</td></tr>'}</tbody></table></div>`;
+ }else{
+  const T=repTable(u.tab,E);
+  body=`<div class="card scroll"><div class="bar" style="margin:0 0 8px"><h2 style="margin:0">${tabs.match(new RegExp('data-t="'+u.tab+'"[^>]*>([^<]*)'))[1]}</h2><span class="sp"></span><button class="btn s" id="rex">Выгрузить в Excel</button></div>
+  <table><thead><tr>${T.head.map((h,i)=>`<th class="${T.num.includes(i)?'r':''}">${h}</th>`).join('')}</tr></thead><tbody>${T.rows.map(r=>`<tr>${r.map((c,i)=>`<td class="${T.num.includes(i)?'r':''}">${esc(c)}</td>`).join('')}</tr>`).join('')||`<tr><td colspan="${T.head.length}" class="empty">За выбранный период оплаченных заказов нет</td></tr>`}</tbody></table>${T.foot?`<div class="note" style="margin-top:8px">${T.foot}</div>`:''}</div>`;
+ }
+ return `<h1>Отчёты</h1><div class="sub">Выручка считается по дате оплаты клиентом. Отменённые заказы и неоплаченные не входят.</div>
+ <div class="bar">${presets.map(([k,n])=>`<button class="btn s ${u.preset===k?'p':''}" data-p="${k}">${n}</button>`).join('')}<span class="sp"></span><label class="note">с</label><input type="date" id="rfrom" value="${esc(u.from)}"><label class="note">по</label><input type="date" id="rto" value="${esc(u.to)}"></div>
+ <div class="grid g4"><div class="card kpi"><b>${E.length}</b><span>оплаченных заказов</span></div><div class="card kpi"><b>${eur(r2(rev))}</b><span>выручка</span></div><div class="card kpi"><b>${eur(pr)}</b><span>прибыль (${pctFmt(pr,cost)} к закупке)</span></div><div class="card kpi"><b>${puN?uahFmt(pu):'—'}</b><span>прибыль ₴ по факту (${puN} из ${E.length} зак.)</span></div></div>
+ ${E.length&&est?`<div class="msg warn">У ${est} из ${E.length} заказов закупка посчитана не полностью по приходам (часть по справочнику). Привяжи приходы к заказам, и прибыль станет точной.</div>`:''}
+ <div class="tabs">${tabs}</div>${body}`},
+bind(){
+ const u=UI.rep;
+ $$('[data-p]').forEach(b=>b.onclick=()=>{setPreset(b.dataset.p);render()});
+ $('#rfrom').onchange=e=>{u.from=e.target.value;u.preset='';render()};
+ $('#rto').onchange=e=>{u.to=e.target.value;u.preset='';render()};
+ $$('.tabs a').forEach(a=>a.onclick=()=>{u.tab=a.dataset.t;render()});
+ $$('tbody tr[data-id]').forEach(tr=>tr.onclick=()=>{location.hash='#order/'+tr.dataset.id});
+ const rx=$('#rex');if(rx)rx.onclick=()=>{
+  const T=repTable(u.tab,repOrders());
+  const ws=XLSX.utils.aoa_to_sheet([T.head].concat(T.raw));ws['!cols']=T.head.map((h,i)=>({wch:i===0||h==='Товар'?44:14}));
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Отчёт');XLSX.writeFile(wb,'bella_otchet_'+u.tab+'_'+today()+'.xlsx');
  };
 }};
 
