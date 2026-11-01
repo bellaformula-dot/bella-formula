@@ -55,10 +55,10 @@ function setting(k,def){const r=DB&&DB.settings.find(x=>x.id===k);return r?r.val
 async function setSetting(k,v){await save('settings',{id:k,value:String(v)})}
 
 /* ---------- Layout ---------- */
-const MENU=[['home','Главная'],['orders','Заказы клиентов'],['sales','Продажи'],['purchases','Приходы'],['products','Товары'],['clients','Клиенты'],['suppliers','Поставщики'],['trustees','Доверенные лица'],['agents','Выплаты агентам'],['prices','Цены'],['rates','Курсы НБУ'],['reports','Отчёты'],['settings','Настройки']];
+const MENU=[['home','Главная'],['orders','Заказы клиентов'],['sales','Продажи'],['purchases','Приходы'],['deliveries','Доставка'],['products','Товары'],['clients','Клиенты'],['suppliers','Поставщики'],['trustees','Доверенные лица'],['agents','Выплаты агентам'],['prices','Цены'],['rates','Курсы НБУ'],['reports','Отчёты'],['settings','Настройки']];
 function route(){return (location.hash||'#home').slice(1).split('/')[0]||'home'}
 function shell(inner){
- let cur=route();if(cur==='order')cur='orders';if(cur==='purchase'||cur==='tobuy')cur='purchases';if(cur==='invoice')cur='sales';
+ let cur=route();if(cur==='order')cur='orders';if(cur==='purchase'||cur==='tobuy')cur='purchases';if(cur==='delivery')cur='deliveries';if(cur==='invoice')cur='sales';
  return `<div class="app"><aside class="side"><div class="logo">Bella Formula<small>УЧЁТ</small></div><nav class="nav">${
   MENU.map(([k,n,soon])=>`<a href="#${k}" class="${cur===k?'on':''} ${soon?'soon':''}"><i></i>${n}${soon?'<em>скоро</em>':''}</a>`).join('')
  }</nav></aside><main class="main">${inner}</main></div>`;
@@ -67,8 +67,8 @@ function render(){
  const root=$('#root');
  if(!CFG||!DB){root.innerHTML=loginView();bindLogin();return}
  const r=route();
- if(r!=='order')OD=null;if(r!=='purchase')PD=null;
- const V={home:viewHome,products:viewProducts,prices:viewPrices,rates:viewRates,settings:viewSettings,orders:viewOrders,order:viewOrder,purchases:viewPurchases,purchase:viewPurchase,tobuy:viewToBuy,sales:viewSales,invoice:viewInvoice,reports:viewReports,clients:viewClients,suppliers:viewSuppliers,trustees:viewTrustees,agents:viewAgents}[r];
+ if(r!=='order')OD=null;if(r!=='purchase')PD=null;if(r!=='delivery')DD=null;
+ const V={home:viewHome,products:viewProducts,prices:viewPrices,rates:viewRates,settings:viewSettings,orders:viewOrders,order:viewOrder,purchases:viewPurchases,purchase:viewPurchase,tobuy:viewToBuy,sales:viewSales,invoice:viewInvoice,reports:viewReports,clients:viewClients,suppliers:viewSuppliers,trustees:viewTrustees,agents:viewAgents,deliveries:viewDeliveries,delivery:viewDelivery}[r];
  if(!V){root.innerHTML=shell(`<h1>${esc((MENU.find(m=>m[0]===r)||[0,'Раздел'])[1])}</h1><div class="card empty">Этот раздел появится на следующем этапе.</div>`);return}
  root.innerHTML=shell(V.html());
  if(V.bind)V.bind();
@@ -591,7 +591,7 @@ const viewOrder={html(){
  </div>
  <div class="card"><h2>Товары</h2><div class="scroll" id="lines">${linesHtml()}</div>
   <div class="bar" style="margin:12px 0 0"><button class="btn s" id="addl" type="button">+ Добавить позицию</button><span class="sp"></span>
-  <div style="text-align:right"><div class="note">Сумма: <span id="tsub"></span></div><div class="note" id="tdisc">Скидка применена</div><div style="font:600 22px Georgia,serif">Итого: <span id="ttot"></span></div></div></div></div>
+  <div style="text-align:right"><div class="note">Сумма: <span id="tsub"></span></div><div class="note" id="tdisc">Скидка применена</div><div style="font:700 22px Inter,system-ui,sans-serif">Итого: <span id="ttot"></span></div></div></div></div>
  <div class="card noprint"><h2>Внутренний расчёт <span class="note">(клиенту не показывается)</span></h2>
   <div class="grid g3"><div><div class="note" id="tcostlbl">Закупка</div><b id="tcost"></b></div><div><div class="note">Прибыль</div><b id="tprof"></b></div><div><div class="note">Наценка</div><b id="tmk"></b></div></div>
   <div style="margin-top:10px"><span class="note">Прибыль в гривнях (по факту): </span><b id="tprofuah"></b></div>
@@ -667,7 +667,7 @@ function nextPurNumber(){let m=0;DB.purchases.forEach(o=>{const n=parseInt(Strin
 function purchaseFactor(pid){
  const p=DB.purchases.find(x=>x.id===pid),ls=DB.purchase_lines.filter(l=>l.purchase_id===pid);
  const goods=ls.reduce((a,l)=>a+(+l.qty||0)*(+l.price_eur||0),0),d=p?(+p.delivery_eur||0):0;
- return goods>0?1+d/goods:1;
+ return goods>0?1+(d+dlvShare(pid))/goods:1;
 }
 function plUnitCost(pl){
  const p=DB.purchases.find(x=>x.id===pl.purchase_id);
@@ -713,7 +713,7 @@ const viewToBuy={html(){
  return `<h1>К закупке</h1><div class="sub"><a href="#purchases">← Приходы</a> · Заказы со статусом «Предоплата получена», по которым ещё нет прихода</div>
  ${orders.length?`<div class="card"><h2>Заказы</h2>${orders.map(x=>`<label style="display:flex;gap:10px;padding:6px 0;align-items:flex-start"><input type="checkbox" data-sel="${esc(x.o.id)}" ${sel[x.o.id]?'checked':''}><span><b>${esc(x.o.number)}</b> · ${esc(clientName(x.o.client_id))} · оплата ${esc(x.o.pay_date||'—')}<div class="note">${x.ls.map(l=>esc(l.name)+' ×'+l.qty).join('; ')}</div></span></label>`).join('')}</div>
  <div class="card scroll"><h2>Что заказать у поставщика</h2><table><thead><tr><th>Бренд</th><th>Товар</th><th class="r">Кол-во</th><th>Заказы</th><th class="r">Закупка €</th><th class="r">Сумма €</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc((r.p||{}).brand||'')}</td><td>${esc(r.a.l.name)}</td><td class="r"><b>${r.a.qty}</b></td><td class="note">${esc(r.a.nums.join(', '))}</td><td class="r">${isNaN(r.b)?'<span class="tag y">нет цены</span>':eur(r.b)}</td><td class="r">${isNaN(r.b)?'—':eur(r2(r.b*r.a.qty))}</td></tr>`).join('')||'<tr><td colspan="6" class="empty">Отметь хотя бы один заказ</td></tr>'}</tbody></table>
- <div style="text-align:right;margin-top:10px;font:600 20px Georgia,serif">Ориентировочно: ${eur(tot)}</div></div>
+ <div style="text-align:right;margin-top:10px;font:700 20px Inter,system-ui,sans-serif">Ориентировочно: ${eur(tot)}</div></div>
  <div class="bar"><button class="btn p" id="tbc" ${rows.length?'':'disabled'}>Создать приход из выбранных</button><button class="btn" id="tbx" ${rows.length?'':'disabled'}>Выгрузить список в Excel</button></div>`
  :`<div class="card empty">Нет оплаченных заказов, ожидающих закупки. Когда у заказа будет статус «Предоплата получена», он появится здесь.</div>`}`},
 bind(){
@@ -780,7 +780,7 @@ const viewPurchase={html(){
   <div class="f"><label>Дата оплаты поставщику</label><input type="date" data-o="date" value="${esc(o.date)}"></div>
   <div class="f" style="grid-column:1/-1"><label>Поставщик</label><div class="bar" style="margin:0"><select data-o="supplier_id"><option value="">— выбери поставщика —</option>${sup.map(s=>`<option value="${esc(s.id)}" ${s.id===o.supplier_id?'selected':''}>${esc(s.name)}</option>`).join('')}</select><button class="btn s" id="nsp" type="button">+ Новый</button></div></div>
   <div class="f"><label>Статус</label><select data-o="status">${PST.map(s=>`<option value="${s[0]}" ${(o.status||'new')===s[0]?'selected':''}>${s[1]}</option>`).join('')}</select></div>
-  <div class="f"><label>Доставка поставщика, €</label><input type="text" data-o="delivery_eur" value="${esc(o.delivery_eur)}"></div>
+  <div class="f"><label>Доставка магазина, € (если бесплатная — 0)</label><input type="text" data-o="delivery_eur" value="${esc(o.delivery_eur)}"></div>
   <div class="f" style="grid-column:1/-1"><label>Заметка</label><textarea data-o="note" rows="2">${esc(o.note)}</textarea></div>
  </div></div>
  <div class="card"><h2>Курс и итоги</h2><div class="grid g2">
@@ -788,7 +788,7 @@ const viewPurchase={html(){
   <div class="f"><label>&nbsp;</label><button class="btn s" id="prg" type="button">Взять курс НБУ на дату</button></div>
   <div class="f" style="grid-column:1/-1"><div class="note" id="pratemsg"></div></div>
   <div><div class="note">Товары</div><b id="pgoods"></b></div><div><div class="note">Доставка</div><b id="pdel"></b></div>
-  <div><div class="note">Итого €</div><b id="ptot" style="font:600 22px Georgia,serif"></b></div><div><div class="note">Итого по курсу</div><b id="ptuah"></b></div>
+  <div><div class="note">Итого €</div><b id="ptot" style="font:700 22px Inter,system-ui,sans-serif"></b></div><div><div class="note">Итого по курсу</div><b id="ptuah"></b></div>
  </div><div class="note" style="margin-top:10px">Доставка распределяется на товары пропорционально их стоимости: так считается себестоимость с доставкой.</div></div>
  </div>
  <div class="card"><h2>Товары</h2><div class="scroll" id="lines">${pdLinesHtml()}</div>
@@ -911,7 +911,7 @@ const viewInvoice={html(){
   </tbody></table>
   <div style="text-align:right;margin-top:14px">
    ${d.disc?`<div>${T.sub}: ${eur(d.sub)}</div><div>${T.disc}: ${d.disc}%</div>`:''}
-   <div style="font:600 22px Georgia,serif">${T.total}: ${eur(d.tot)}</div>
+   <div style="font:700 22px Inter,system-ui,sans-serif">${T.total}: ${eur(d.tot)}</div>
    ${!isNaN(rate)&&o.pay_date?`<div class="note">${T.rate} ${esc(o.pay_date)}: ${rate.toFixed(4)}</div><div>${T.topay}: <b>${(r2(d.tot*rate)).toLocaleString('ru-RU',{minimumFractionDigits:2})}</b></div>`:''}
    ${o.pay_uah!==''&&!isNaN(o.pay_uah)?`<div>${T.paid}: <b>${Number(o.pay_uah).toLocaleString('ru-RU',{minimumFractionDigits:2})}</b>${o.pay_method?' · '+esc(T.pm[o.pay_method]||''):''}</div>`:''}
   </div>
@@ -984,6 +984,111 @@ bind(){
   const d=[];G.forEach(g=>g.orders.forEach(({o,e,fw})=>d.push({Агент:g.name,Заказ:o.number,'Дата оплаты':o.pay_date,Клиент:clientName(o.client_id),'Выручка €':e.rev,'Прибыль €':e.profit,'Прибыль по оценке':(e.act>0&&!e.est&&!e.miss)?'нет':'да','Посылка агентом':fw?'да':''})));
   const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(s),'Выплаты');XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(d),'Заказы');XLSX.writeFile(wb,'bella_vyplaty_agentam_'+AG.m+'.xlsx');
  };
+}};
+/* ---------- Этап 6: Доставка (перевозчик в Украину) ---------- */
+const DST=[['plan','Собираем (план)'],['paid','Оплачена перевозчику'],['sent','В пути'],['done','Доставлена']];
+const dstName=k=>(DST.find(s=>s[0]===k)||[0,k])[1];
+function dlvAll(){return DB.settings.filter(x=>String(x.id).startsWith('dlv:')&&x.value).map(x=>{try{return JSON.parse(x.value)}catch(e){return null}}).filter(Boolean)}
+function dlvOf(pid){return dlvAll().find(d=>(d.purchases||[]).includes(pid))}
+function dlvGoods(pid){return DB.purchase_lines.filter(l=>l.purchase_id===pid).reduce((a,l)=>a+(+l.qty||0)*(+l.price_eur||0),0)}
+function dlvCost(d){
+ const total=r2((num(d.qty)||0)*(num(d.unit)||0));
+ if(d.cur==='UAH'){const r=num(d.rate);return {nat:total,cur:'UAH',eur:(isNaN(r)||!r)?NaN:total/r}}
+ return {nat:total,cur:'EUR',eur:total};
+}
+function dlvShare(pid){
+ const d=dlvOf(pid);if(!d||d.status==='plan')return 0;
+ const c=dlvCost(d).eur;if(isNaN(c))return 0;
+ const tot=(d.purchases||[]).reduce((a,x)=>a+dlvGoods(x),0);
+ return tot>0?c*dlvGoods(pid)/tot:0;
+}
+function dlvSummary(d){
+ const c=dlvCost(d),ids=d.purchases||[];
+ const pls=DB.purchase_lines.filter(l=>ids.includes(l.purchase_id));
+ const oids=[...new Set(pls.filter(l=>l.order_id).map(l=>l.order_id))];
+ const os=oids.map(id=>DB.orders.find(o=>o.id===id)).filter(Boolean);
+ const rev=r2(os.reduce((a,o)=>a+orderEconomics(o).rev,0));
+ const goods=r2(pls.filter(l=>l.order_id).reduce((a,l)=>a+(+l.qty||0)*(+l.price_eur||0),0));
+ const goodsAll=r2(ids.reduce((a,x)=>a+dlvGoods(x),0));
+ const del=isNaN(c.eur)?NaN:r2(c.eur);
+ return {c,os,rev,goods,goodsAll,del,profit:isNaN(del)?NaN:r2(rev-goods-del),profit0:r2(rev-goods)};
+}
+function nextDlvNumber(){let m=0;dlvAll().forEach(d=>{const n=parseInt(String(d.number).replace(/\D/g,''),10);if(n>m)m=n});return 'DL-'+String(m+1).padStart(4,'0')}
+let DD=null;
+function initDlv(key){
+ if(DD&&DD.key===key)return;
+ if(key==='new')DD={key,isNew:true,d:{id:'d'+uid(),number:nextDlvNumber(),date:today(),carrier:'',status:'plan',mode:'weight',qty:'',unit:'',cur:'EUR',rate:'',target:'',purchases:[],note:''}};
+ else{const d=dlvAll().find(x=>x.id===key);DD=d?{key,isNew:false,d:JSON.parse(JSON.stringify(d))}:null}
+}
+const pctOf=(a,b)=>(b>0&&!isNaN(a))?(Math.round(a/b*1000)/10).toLocaleString('ru-RU')+'%':'—';
+const viewDeliveries={html(){
+ const list=dlvAll().sort((a,b)=>(a.date+a.number)<(b.date+b.number)?1:-1);
+ return `<h1>Доставка</h1><div class="sub">Услуга перевозчика в Украину. Стоимость делится между товарами привязанных приходов и входит в себестоимость заказов.</div>
+ <div class="bar"><span class="sp"></span><button class="btn p" id="dnew">+ Новая доставка</button></div>
+ ${list.length?`<div class="card scroll" style="padding:6px"><table><thead><tr><th>№</th><th>Дата</th><th>Перевозчик</th><th>Тариф</th><th class="r">Стоимость</th><th class="r">Стоимость €</th><th class="r">Приходов</th><th class="r">Выручка заказов</th><th class="r">Доставка к выручке</th><th>Статус</th></tr></thead><tbody>${list.map(d=>{const s=dlvSummary(d);return `<tr data-id="${esc(d.id)}" style="cursor:pointer"><td><b>${esc(d.number)}</b></td><td>${esc(d.date)}</td><td>${esc(d.carrier)}</td><td>${d.mode==='weight'?'за вес, '+esc(d.qty)+' кг':'за посылку, '+esc(d.qty)+' шт.'}</td><td class="r">${s.c.cur==='UAH'?uahFmt(s.c.nat):eur(s.c.nat)}</td><td class="r">${eur(s.del)}</td><td class="r">${(d.purchases||[]).length}</td><td class="r">${eur(s.rev)}</td><td class="r">${pctOf(s.del,s.rev)}</td><td><span class="tag ${d.status==='plan'?'y':''}">${esc(dstName(d.status))}</span></td></tr>`}).join('')}</tbody></table></div>`:`<div class="card empty">Доставок пока нет. Создай доставку, когда собираешь заказы для отправки буса.</div>`}`},
+bind(){
+ $('#dnew').onclick=()=>{DD=null;location.hash='#delivery/new'};
+ $$('tr[data-id]').forEach(r=>r.onclick=()=>{DD=null;location.hash='#delivery/'+r.dataset.id});
+}};
+function dlvSumHtml(){
+ const d=DD.d,s=dlvSummary(d),tg=num(d.target);
+ return `<div class="grid g2"><div><div class="note">Стоимость доставки</div><b style="font:700 22px Inter,system-ui,sans-serif">${s.c.cur==='UAH'?uahFmt(s.c.nat)+' ≈ '+eur(s.del):eur(s.c.nat)}</b></div>
+ <div><div class="note">Товары в выбранных приходах</div><b style="font:700 22px Inter,system-ui,sans-serif">${eur(s.goodsAll)}</b></div></div>
+ <table style="margin-top:12px"><tbody>
+ <tr><td>Заказов в этой доставке</td><td class="r">${s.os.length}</td></tr>
+ <tr><td>Выручка этих заказов</td><td class="r">${eur(s.rev)}</td></tr>
+ <tr><td>Закупка товаров этих заказов</td><td class="r">${eur(s.goods)}</td></tr>
+ <tr><td>Прибыль до доставки</td><td class="r">${eur(s.profit0)}</td></tr>
+ <tr><td>Доставка</td><td class="r">${eur(s.del)}</td></tr>
+ <tr><td><b>Прибыль после доставки</b></td><td class="r"><b class="${s.profit<0?'chg-dn':''}">${eur(s.profit)}</b></td></tr>
+ <tr><td>Доставка в % от выручки</td><td class="r">${pctOf(s.del,s.rev)}</td></tr>
+ ${tg>0?`<tr><td>Набрано к цели ${eur(tg)}</td><td class="r">${pctOf(s.rev,tg)}</td></tr>`:''}
+ </tbody></table>
+ ${d.status==='plan'?'<div class="msg warn">Статус «Собираем»: это расчёт для себя. В себестоимость заказов и прибыль агентам доставка попадёт после перевода в «Оплачена перевозчику».</div>':''}
+ ${d.cur==='UAH'&&isNaN(s.c.eur)?'<div class="msg warn">Укажи курс НБУ (кнопка «Взять курс НБУ на дату»), чтобы пересчитать гривны в евро.</div>':''}
+ <div class="note" style="margin-top:8px">Выручка и закупка считаются по заказам, чьи товары едут в выбранных приходах.</div>`;
+}
+const viewDelivery={html(){
+ initDlv(routeArg());
+ if(!DD)return `<h1>Доставка не найдена</h1><a class="btn" href="#deliveries">К списку</a>`;
+ const d=DD.d,wt=d.mode==='weight';
+ const sel=(k,arr)=>`<select data-d="${k}">${arr.map(([v,n])=>`<option value="${esc(v)}" ${String(d[k])===String(v)?'selected':''}>${esc(n)}</option>`).join('')}</select>`;
+ const avail=DB.purchases.filter(p=>{const x=dlvOf(p.id);return !x||x.id===d.id}).sort((a,b)=>(a.date+a.number)<(b.date+b.number)?1:-1);
+ return `<div id="dd"><h1>${DD.isNew?'Новая доставка':'Доставка '+esc(d.number)}</h1><div class="sub"><a href="#deliveries">← Все доставки</a></div>
+ <div class="grid g2"><div class="card"><h2>Условия</h2><div class="grid g2">
+ <div class="f"><label>Номер</label><input type="text" data-d="number" value="${esc(d.number)}"></div>
+ <div class="f"><label>Дата (оплаты перевозчику)</label><input type="date" data-d="date" value="${esc(d.date)}"></div>
+ <div class="f"><label>Перевозчик</label><input type="text" data-d="carrier" value="${esc(d.carrier)}" placeholder="Имя или название буса"></div>
+ <div class="f"><label>Статус</label>${sel('status',DST)}</div>
+ <div class="f"><label>Как считает перевозчик</label>${sel('mode',[['weight','За вес'],['parcel','За посылку']])}</div>
+ <div class="f"><label>${wt?'Вес, кг':'Количество посылок'}</label><input type="text" data-d="qty" value="${esc(d.qty)}"></div>
+ <div class="f"><label>${wt?'Цена за 1 кг':'Цена за 1 посылку'}</label><input type="text" data-d="unit" value="${esc(d.unit)}"></div>
+ <div class="f"><label>Валюта оплаты</label>${sel('cur',[['EUR','€ евро'],['UAH','₴ гривны']])}</div>
+ ${d.cur==='UAH'?`<div class="f"><label>Курс НБУ EUR→UAH на дату оплаты</label><div class="bar" style="margin:0"><input type="text" data-d="rate" id="drate" value="${esc(d.rate)}" style="width:110px"><button class="btn s" type="button" id="dnbu">Взять курс НБУ на дату</button></div></div>`:''}
+ <div class="f"><label>Цель: выручка заказов, € (необязательно)</label><input type="text" data-d="target" value="${esc(d.target)}" placeholder="сколько хочешь набрать"></div>
+ <div class="f" style="grid-column:1/-1"><label>Заметка</label><textarea data-d="note" rows="2">${esc(d.note)}</textarea></div>
+ </div></div>
+ <div class="card"><h2>Расчёт</h2><div id="dsum">${dlvSumHtml()}</div></div></div>
+ <div class="card"><h2>Приходы в этой доставке</h2>${avail.length?avail.map(p=>`<label style="display:flex;gap:10px;padding:5px 0;align-items:flex-start"><input type="checkbox" data-dp="${esc(p.id)}" ${(d.purchases||[]).includes(p.id)?'checked':''} style="width:auto"><span><b>${esc(p.number)}</b> · ${esc(supplierName(p.supplier_id))} · ${esc(p.date)} · товары ${eur(r2(dlvGoods(p.id)))}</span></label>`).join(''):'<div class="note">Нет приходов. Сначала оформи приход (меню «Приходы»), потом привяжи его сюда.</div>'}</div>
+ <div class="bar"><button class="btn p" id="dsv">Сохранить</button><a class="btn" href="#deliveries">Закрыть</a><span class="sp"></span>${DD.isNew?'':'<button class="btn d" id="ddl">Удалить доставку</button>'}</div></div>`},
+bind(){
+ if(!DD)return;const d=DD.d,w=$('#dd');
+ const upd=()=>{$('#dsum').innerHTML=dlvSumHtml()};
+ w.addEventListener('input',e=>{const t=e.target;if(t.dataset.d&&t.tagName!=='SELECT'){d[t.dataset.d]=t.value;if(['qty','unit','rate','target'].includes(t.dataset.d))upd()}});
+ w.addEventListener('change',e=>{const t=e.target;
+  if(t.dataset.dp){const a=d.purchases=d.purchases||[];const i=a.indexOf(t.dataset.dp);if(t.checked&&i<0)a.push(t.dataset.dp);if(!t.checked&&i>=0)a.splice(i,1);upd()}
+  else if(t.dataset.d&&t.tagName==='SELECT'){d[t.dataset.d]=t.value;setTimeout(render,0)}
+ });
+ const nb=$('#dnbu');if(nb)nb.onclick=async()=>{try{const v=await fetchNbu(d.date);d.rate=String(v);$('#drate').value=d.rate;upd()}catch(e){alert('Не удалось получить курс НБУ. Введи вручную.')}};
+ $('#dsv').onclick=async()=>{
+  if(!String(d.number).trim()){alert('Укажи номер');return}
+  if(dlvAll().some(x=>x.number===d.number&&x.id!==d.id)){alert('Номер '+d.number+' уже есть. Измени номер.');return}
+  if(isNaN(num(d.qty))||isNaN(num(d.unit))){alert('Заполни количество (вес или посылки) и цену');return}
+  if(d.cur==='UAH'&&d.status!=='plan'&&!(num(d.rate)>0)){try{d.rate=String(await fetchNbu(d.date))}catch(e){alert('Не удалось получить курс НБУ. Введи курс вручную.');return}}
+  if(d.status!=='plan'&&!(d.purchases||[]).length&&!confirm('Не выбран ни один приход, доставка никуда не распределится. Сохранить?'))return;
+  await setSetting('dlv:'+d.id,JSON.stringify(d));DD=null;location.hash='#deliveries';toast('Доставка сохранена');
+ };
+ const dl=$('#ddl');if(dl)dl.onclick=async()=>{if(!confirm('Удалить доставку '+d.number+'? Себестоимость заказов пересчитается без неё.'))return;await removeIds('settings',['dlv:'+d.id]);DD=null;location.hash='#deliveries';toast('Удалено')};
 }};
 function setPreset(k){
  const n=new Date(),u=UI.rep;u.preset=k;

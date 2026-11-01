@@ -12,7 +12,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .nav a.soon{color:#8d9486}.nav a.soon em{margin-left:auto;font-style:normal;font-size:11px;background:#e5dcc3;border-radius:99px;padding:1px 7px;color:#6b6552}
 .nav i{width:16px;height:16px;border-radius:5px;background:#d9d1b9;display:inline-block;flex:none}.nav a.on i{background:#c9d7bb}
 .main{padding:22px 28px 60px;min-width:0}
-h1{font:600 28px Georgia,serif;margin:0 0 4px}h2{font:600 18px Georgia,serif;margin:0 0 10px}
+h1{font:700 28px Inter,system-ui,sans-serif;margin:0 0 4px}h2{font:700 18px Inter,system-ui,sans-serif;margin:0 0 10px}
 .sub{color:var(--mut);margin-bottom:16px}
 .bar{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
 .sp{flex:1}
@@ -35,14 +35,14 @@ input.num{width:86px;text-align:right;border:1px dashed var(--ol);background:#ff
 input.num.bad{border-color:var(--red);background:#fdeceb}
 .grid{display:grid;gap:12px}.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
 .f label{display:block;font-size:12px;color:var(--mut);margin-bottom:3px}.f input,.f select,.f textarea{width:100%}
-.kpi{padding:14px 16px}.kpi b{display:block;font:600 26px Georgia,serif}.kpi span{color:var(--mut);font-size:13px}
+.kpi{padding:14px 16px}.kpi b{display:block;font:700 26px Inter,system-ui,sans-serif}.kpi span{color:var(--mut);font-size:13px}
 .tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
 .tabs a{padding:8px 14px;border-radius:99px;border:1px solid var(--ln);background:var(--card);cursor:pointer;text-decoration:none;color:inherit}
 .tabs a.on{background:var(--ol);color:#fff;border-color:var(--ol)}
 .pager{display:flex;gap:8px;align-items:center;justify-content:center;margin-top:12px}
 .stat{position:fixed;right:16px;bottom:16px;background:#fff;border:1px solid var(--ln);border-radius:99px;padding:7px 14px;box-shadow:0 4px 16px rgba(0,0,0,.1);font-size:13px;z-index:30}
 .stat.err{background:#fdeceb;border-color:#e0a9a0;color:var(--red);cursor:pointer}
-.ovl{position:fixed;inset:0;background:rgba(250,245,234,.85);display:grid;place-items:center;z-index:40;font:600 18px Georgia,serif}
+.ovl{position:fixed;inset:0;background:rgba(250,245,234,.85);display:grid;place-items:center;z-index:40;font:700 18px Inter,system-ui,sans-serif}
 dialog{border:1px solid var(--ln);border-radius:16px;padding:20px;max-width:720px;width:calc(100% - 24px);background:var(--card);color:var(--dk)}
 dialog::backdrop{background:rgba(31,53,39,.35)}
 .msg{padding:10px 12px;border-radius:10px;background:#eef3e4;border:1px solid #cfdcb9;margin:10px 0}
@@ -63,3 +63,4 @@ a.btn{text-decoration:none;color:inherit;display:inline-block}a.btn.p{color:#fff
 @media print{.inv{box-shadow:none;border:0;max-width:none;padding:0;margin:0}table{font-size:12px}}
 input[type=month]{background:var(--card);border:1px solid var(--ln);border-radius:10px;padding:9px 12px}
 td a{color:var(--ol2);font-weight:600}
+.sub a{color:var(--ol2)}
