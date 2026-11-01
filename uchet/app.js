@@ -55,7 +55,7 @@ function setting(k,def){const r=DB&&DB.settings.find(x=>x.id===k);return r?r.val
 async function setSetting(k,v){await save('settings',{id:k,value:String(v)})}
 
 /* ---------- Layout ---------- */
-const MENU=[['home','Главная'],['orders','Заказы клиентов'],['sales','Продажи'],['purchases','Приходы'],['products','Товары'],['clients','Клиенты'],['suppliers','Поставщики'],['trustees','Доверенные лица'],['prices','Цены'],['rates','Курсы НБУ'],['reports','Отчёты'],['settings','Настройки']];
+const MENU=[['home','Главная'],['orders','Заказы клиентов'],['sales','Продажи'],['purchases','Приходы'],['products','Товары'],['clients','Клиенты'],['suppliers','Поставщики'],['trustees','Доверенные лица'],['agents','Выплаты агентам'],['prices','Цены'],['rates','Курсы НБУ'],['reports','Отчёты'],['settings','Настройки']];
 function route(){return (location.hash||'#home').slice(1).split('/')[0]||'home'}
 function shell(inner){
  let cur=route();if(cur==='order')cur='orders';if(cur==='purchase'||cur==='tobuy')cur='purchases';if(cur==='invoice')cur='sales';
@@ -68,7 +68,7 @@ function render(){
  if(!CFG||!DB){root.innerHTML=loginView();bindLogin();return}
  const r=route();
  if(r!=='order')OD=null;if(r!=='purchase')PD=null;
- const V={home:viewHome,products:viewProducts,prices:viewPrices,rates:viewRates,settings:viewSettings,orders:viewOrders,order:viewOrder,purchases:viewPurchases,purchase:viewPurchase,tobuy:viewToBuy,sales:viewSales,invoice:viewInvoice,reports:viewReports,clients:viewClients,suppliers:viewSuppliers,trustees:viewTrustees}[r];
+ const V={home:viewHome,products:viewProducts,prices:viewPrices,rates:viewRates,settings:viewSettings,orders:viewOrders,order:viewOrder,purchases:viewPurchases,purchase:viewPurchase,tobuy:viewToBuy,sales:viewSales,invoice:viewInvoice,reports:viewReports,clients:viewClients,suppliers:viewSuppliers,trustees:viewTrustees,agents:viewAgents}[r];
  if(!V){root.innerHTML=shell(`<h1>${esc((MENU.find(m=>m[0]===r)||[0,'Раздел'])[1])}</h1><div class="card empty">Этот раздел появится на следующем этапе.</div>`);return}
  root.innerHTML=shell(V.html());
  if(V.bind)V.bind();
@@ -383,6 +383,7 @@ const viewSettings={html(){
  <div class="f"><label>Telegram / Instagram</label><input type="text" data-set="seller_contact" value="${g('seller_contact')}"></div>
  <div class="f"><label>Реквизиты для оплаты (карта, IBAN)</label><input type="text" data-set="seller_pay" value="${g('seller_pay')}"></div></div>
  <div class="bar" style="margin-top:12px"><button class="btn p" id="sv">Сохранить</button></div></div>
+ <div class="card"><h2>Комиссии агентов</h2><p class="note">Считается от прибыли заказа (после закупки и доставки). Ставка зависит от прибыли агента за календарный месяц и применяется ко всей сумме.</p><div class="grid g3">${[['t1','Порог 1, € прибыли'],['t2','Порог 2, € прибыли'],['fee','За посылку, €'],['r1','Ставка до порога 1, %'],['r2','Ставка между порогами, %'],['r3','Ставка выше порога 2, %']].map(([k,n])=>`<div class="f"><label>${n}</label><input type="text" data-set="ag_${k}" value="${esc(agCfg()[k])}"></div>`).join('')}</div><div class="bar" style="margin-top:12px"><button class="btn p" id="svag">Сохранить</button></div></div>
  <div class="card"><h2>Первый импорт товаров с сайта</h2><p class="note">Добавит в справочник товары каталога Bella Formula (${'256'} позиций) с продажными ценами с сайта. Уже существующие по артикулу не затрагиваются. Закупочные цены останутся пустыми — заполнишь через Excel.</p>
  <button class="btn" id="si">Импортировать товары</button><div id="sim"></div></div>
  <div class="card"><h2>Резервная копия</h2><p class="note">Скачай всю базу одним файлом. Таблица в Google Диске и так хранит данные, а копия — на случай ошибки.</p>
@@ -390,6 +391,7 @@ const viewSettings={html(){
  <div class="card"><h2>Подключение</h2><button class="btn d" id="slo">Выйти (забыть пароль на этом устройстве)</button></div>`},
 bind(){
  $('#sv').onclick=async()=>{const rows=$$('[data-set]').map(e=>({id:e.dataset.set,value:e.value.trim()}));await save('settings',rows);toast('Сохранено')};
+ $('#svag').onclick=$('#sv').onclick;
  $('#si').onclick=async()=>{
   const b=$('#si');b.disabled=true;
   try{
@@ -574,7 +576,8 @@ const viewOrder={html(){
   <div class="f"><label>Скидка, %</label><input type="text" data-o="discount" value="${esc(o.discount)}"></div>
   <div class="f"><label>Статус</label>${sel('status',ST)}</div>
   <div class="f"><label>Перевозчик</label><input type="text" data-o="carrier" value="${esc(o.carrier)}" placeholder="Нова Пошта, Meest…"></div>
-  <div class="f"><label>Доверенное лицо</label>${sel('trustee_id',trustees,'—')}</div>
+  <div class="f"><label>Доверенное лицо (агент)</label>${sel('trustee_id',trustees,'—')}</div>
+  <div class="f"><label>Посылка клиенту</label><label style="display:flex;gap:8px;align-items:center;font-size:14px;color:inherit;margin-top:8px"><input type="checkbox" id="ofw" style="width:auto" ${setting('ofw:'+o.id)==='1'?'checked':''}> агент отправил сам (+${agCfg().fee} €)</label></div>
   <div class="f" style="grid-column:1/-1"><label>Заметка</label><textarea data-o="note" rows="2">${esc(o.note)}</textarea></div>
  </div><div class="bar" style="margin:12px 0 0"><button class="btn s" id="nxt" type="button">Следующий этап →</button></div></div>
  <div class="card"><h2>Оплата клиента</h2><div class="grid g2">
@@ -634,6 +637,7 @@ bind(){
   const rec=Object.assign({},o,{discount:num(o.discount)||0,rate:isNaN(num(o.rate))?'':num(o.rate),pay_uah:isNaN(num(o.pay_uah))?'':num(o.pay_uah),total_eur:t.tot});
   $('#osv').disabled=true;
   await save('orders',rec);
+  {const fw=$('#ofw');if(fw){const nv=(fw.checked&&o.trustee_id)?'1':'0',ov=setting('ofw:'+o.id);if(ov!==nv&&(nv==='1'||ov))await setSetting('ofw:'+o.id,nv)}}
   DB.order_lines=DB.order_lines.filter(l=>l.order_id!==o.id).concat(rows);
   try{await api({action:'replaceLines',sheet:'order_lines',field:'order_id',value:o.id,rows});lastErr=''}catch(e){toast('Позиции не сохранились: '+e.message,1);$('#osv').disabled=false;return}
   OD=null;location.hash='#orders';toast('Заказ сохранён');
@@ -936,6 +940,51 @@ bind(){
 function monthStart(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-01'}
 function isoDate(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 (function(){const n=new Date();UI.rep={from:monthStart(n),to:today(),tab:'months',preset:'month'}})();
+/* ---------- Этап 5: выплаты агентам ---------- */
+function agCfg(){const g=(k,d)=>{const v=num(setting('ag_'+k));return isNaN(v)?d:v};return {t1:g('t1',300),t2:g('t2',800),r1:g('r1',10),r2:g('r2',15),r3:g('r3',20),fee:g('fee',1)}}
+function agRate(p,c){return p>c.t2?c.r3:p>=c.t1?c.r2:c.r1}
+const AG={m:''};
+function agCalc(m){
+ const c=agCfg(),by={};
+ DB.orders.forEach(o=>{
+  if(!o.trustee_id||o.status==='cancel'||!o.pay_date||o.pay_date.slice(0,7)!==m)return;
+  const e=orderEconomics(o),g=by[o.trustee_id]=by[o.trustee_id]||{id:o.trustee_id,orders:[],profit:0,parc:0,est:0};
+  const fw=setting('ofw:'+o.id)==='1';
+  g.orders.push({o,e,fw});g.profit+=e.profit;if(fw)g.parc++;if(!(e.act>0&&!e.est&&!e.miss))g.est++;
+ });
+ return Object.values(by).map(g=>{
+  g.name=(DB.trustees.find(t=>t.id===g.id)||{}).name||'— (удалён)';
+  g.profit=r2(g.profit);g.rate=agRate(g.profit,c);g.comm=Math.max(0,r2(g.profit*g.rate/100));g.fee=r2(g.parc*c.fee);g.total=r2(g.comm+g.fee);
+  const pv=setting('agpay:'+g.id+':'+m);const [pd,pa]=pv?pv.split('|'):['',''];g.paidDate=pd;g.paidAmt=pa===''||pa==null?NaN:+pa;
+  return g;
+ }).sort((a,b)=>String(a.name).localeCompare(String(b.name),'ru'));
+}
+const viewAgents={html(){
+ if(!AG.m)AG.m=today().slice(0,7);
+ const G=agCalc(AG.m),c=agCfg();
+ const sum=k=>r2(G.reduce((a,g)=>a+g[k],0));
+ const tp=sum('profit'),tt=sum('total');
+ const rows=G.map(g=>{
+  let st;
+  if(g.paidDate){const d=r2(g.total-(isNaN(g.paidAmt)?0:g.paidAmt));st=`<span class="tag">Выплачено ${esc(g.paidDate)}</span>${d>0.004?` <span class="tag y">доплатить ${eur(d)}</span>`:''} <button class="btn s" data-unpay="${esc(g.id)}">Отменить</button>${d>0.004?` <button class="btn s p" data-pay="${esc(g.id)}">Выплатить всё</button>`:''}`}
+  else st=`<button class="btn s p" data-pay="${esc(g.id)}">Отметить выплаченным</button>`;
+  return `<tr><td><b>${esc(g.name)}</b>${g.est?` <span class="tag y" title="В части заказов нет реальной закупки в приходах — прибыль по каталожной цене">≈ ${g.est} зак. по оценке</span>`:''}</td><td class="r">${g.orders.length}</td><td class="r">${eur(g.profit)}</td><td class="r">${g.rate}%</td><td class="r">${eur(g.comm)}</td><td class="r">${g.parc}</td><td class="r">${eur(g.fee)}</td><td class="r"><b>${eur(g.total)}</b></td><td>${st}</td></tr>`}).join('');
+ const det=G.map(g=>`<div class="card"><h2>${esc(g.name)} — заказы за ${esc(AG.m)}</h2><div class="scroll"><table><thead><tr><th>Заказ</th><th>Оплата</th><th>Клиент</th><th class="r">Выручка €</th><th class="r">Прибыль €</th><th>Посылка агентом</th></tr></thead><tbody>${g.orders.map(({o,e,fw})=>`<tr><td><a href="#order/${esc(o.id)}">${esc(o.number)}</a></td><td>${esc(o.pay_date)}</td><td>${esc(clientName(o.client_id))}</td><td class="r">${eur(e.rev)}</td><td class="r">${eur(e.profit)}${e.act>0&&!e.est&&!e.miss?'':' ≈'}</td><td>${fw?'да (+'+eur(c.fee)+')':'—'}</td></tr>`).join('')}</tbody></table></div></div>`).join('');
+ return `<h1>Выплаты агентам</h1><div class="sub">Комиссия с прибыли заказов, оплаченных клиентом в выбранном месяце. Ставка зависит от прибыли агента за месяц: до ${c.t1} € — ${c.r1}%, ${c.t1}–${c.t2} € — ${c.r2}%, свыше ${c.t2} € — ${c.r3}%; плюс ${eur(c.fee)} за посылку. Меняется в «Настройках».</div>
+ <div class="bar"><div class="f" style="margin:0"><input type="month" id="agm" value="${esc(AG.m)}"></div><div class="sp"></div><button class="btn" id="agx">Выгрузить в Excel</button></div>
+ <div class="grid g3"><div class="card kpi"><b>${eur(tp)}</b><span>прибыль с заказов агентов</span></div><div class="card kpi"><b>${eur(tt)}</b><span>к выплате агентам</span></div><div class="card kpi"><b>${eur(r2(tp-tt))}</b><span>остаётся тебе</span></div></div>
+ ${G.length?`<div class="card scroll"><table><thead><tr><th>Агент</th><th class="r">Заказов</th><th class="r">Прибыль €</th><th class="r">Ставка</th><th class="r">Комиссия €</th><th class="r">Посылок</th><th class="r">За посылки €</th><th class="r">К выплате €</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>${det}`:`<div class="card empty">За этот месяц нет оплаченных заказов с доверенным лицом.<br><span class="note">Выбери доверенное лицо в заказе и укажи дату оплаты.</span></div>`}`},
+bind(){
+ $('#agm').onchange=e=>{AG.m=e.target.value||today().slice(0,7);render()};
+ $$('[data-pay]').forEach(b=>b.onclick=async()=>{const g=agCalc(AG.m).find(x=>x.id===b.dataset.pay);if(!g)return;if(!confirm('Отметить выплаченным: '+g.name+', '+eur(g.total)+' за '+AG.m+'?'))return;await setSetting('agpay:'+g.id+':'+AG.m,today()+'|'+g.total);toast('Отмечено');render()});
+ $$('[data-unpay]').forEach(b=>b.onclick=async()=>{if(!confirm('Снять отметку о выплате?'))return;await setSetting('agpay:'+b.dataset.unpay+':'+AG.m,'');render()});
+ $('#agx').onclick=()=>{
+  const G=agCalc(AG.m);
+  const s=G.map(g=>({Агент:g.name,Месяц:AG.m,Заказов:g.orders.length,'Прибыль €':g.profit,'Ставка %':g.rate,'Комиссия €':g.comm,Посылок:g.parc,'За посылки €':g.fee,'К выплате €':g.total,Выплачено:g.paidDate||'нет'}));
+  const d=[];G.forEach(g=>g.orders.forEach(({o,e,fw})=>d.push({Агент:g.name,Заказ:o.number,'Дата оплаты':o.pay_date,Клиент:clientName(o.client_id),'Выручка €':e.rev,'Прибыль €':e.profit,'Прибыль по оценке':(e.act>0&&!e.est&&!e.miss)?'нет':'да','Посылка агентом':fw?'да':''})));
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(s),'Выплаты');XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(d),'Заказы');XLSX.writeFile(wb,'bella_vyplaty_agentam_'+AG.m+'.xlsx');
+ };
+}};
 function setPreset(k){
  const n=new Date(),u=UI.rep;u.preset=k;
  if(k==='month'){u.from=monthStart(n);u.to=today()}
