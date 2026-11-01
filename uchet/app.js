@@ -251,7 +251,7 @@ function bindExcel(){
  const cn=$('#icn');if(cn)cn.onclick=()=>{IMP=null;render()};
 }
 function parseImport(wb,name){
- const ws=wb.Sheets[wb.SheetNames[0]];const rows=XLSX.utils.sheet_to_json(ws,{defval:''});
+ const sn=wb.SheetNames.find(n=>/загрузк|upload/i.test(n))||wb.SheetNames[0];const ws=wb.Sheets[sn];const rows=XLSX.utils.sheet_to_json(ws,{defval:''});
  if(!rows.length)throw new Error('файл пуст');
  const keys=Object.keys(rows[0]);
  const find=re=>keys.find(k=>re.test(k.toLowerCase()));
@@ -272,6 +272,7 @@ function parseImport(wb,name){
    if(ov===''||isNaN(ov)||Math.abs(ov-nv)>0.0001)res.changes.push({p,f,old:ov,nw:nv});
   });
  });
+ if(!rows.some(r=>String(r[kA]).trim()))throw new Error('в файле нет значений (цены в нём считаются формулами). Открой файл в Excel, нажми «Сохранить» (Ctrl+S) и загрузи снова');
  return res;
 }
 async function applyChanges(changes,source){
