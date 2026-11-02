@@ -64,3 +64,4 @@ a.btn{text-decoration:none;color:inherit;display:inline-block}a.btn.p{color:#fff
 input[type=month]{background:var(--card);border:1px solid var(--ln);border-radius:10px;padding:9px 12px}
 td a{color:var(--ol2);font-weight:600}
 .sub a{color:var(--ol2)}
+.bdg{margin-left:auto;background:var(--red);color:#fff;border-radius:99px;padding:1px 8px;font-size:11px;font-weight:700}
