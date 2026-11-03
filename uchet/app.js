@@ -55,7 +55,7 @@ function setting(k,def){const r=DB&&DB.settings.find(x=>x.id===k);return r?r.val
 async function setSetting(k,v){await save('settings',{id:k,value:String(v)})}
 
 /* ---------- Layout ---------- */
-const MENU=[['home','Главная'],['orders','Заказы клиентов'],['sales','Продажи'],['purchases','Приходы'],['deliveries','Доставка'],['products','Товары'],['clients','Клиенты'],['suppliers','Поставщики'],['trustees','Доверенные лица'],['agents','Выплаты агентам'],['prices','Цены'],['rates','Курсы НБУ'],['reports','Отчёты'],['settings','Настройки']];
+const MENU=[['home','Главная'],['orders','Заказы клиентов'],['sales','Продажи'],['purchases','Приходы'],['deliveries','Доставка'],['products','Товары'],['clients','Клиенты'],['suppliers','Поставщики'],['trustees','Доверенные лица'],['agents','Выплаты агентам'],['prices','Цены'],['rates','Курс карты'],['reports','Отчёты'],['settings','Настройки']];
 function route(){return (location.hash||'#home').slice(1).split('/')[0]||'home'}
 function shell(inner){
  const pi=pendInfo(),bd={deliveries:pi.noDl.length,agents:pi.agBad.length};
@@ -97,19 +97,15 @@ function bindLogin(){
 /* ---------- NBU rates ---------- */
 function rateFor(date){ // самый свежий курс на дату или раньше
  let best=null;DB.rates.forEach(r=>{if(r.date<=date&&(!best||r.date>best.date))best=r});return best}
-async function fetchNbu(date){
- const d=date.replace(/-/g,'');
- const res=await fetch('https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=EUR&date='+d+'&json');
- const j=await res.json();
- if(!j||!j[0]||!j[0].rate)throw new Error('нет данных');
- return +j[0].rate;
-}
-async function loadRate(date){
- const ex=DB.rates.find(r=>r.date===date&&r.source==='НБУ');if(ex)return ex;
- const v=await fetchNbu(date);
- const row={id:'r'+date.replace(/-/g,''),date,eur:v,source:'НБУ'};
- await save('rates',row);return row;
-}
+function cardRate(date){ // курс карты на дату; если на эту дату не вводился, берём последний прежний
+ const ex=DB.rates.filter(r=>r.date===date).sort((a,b)=>(a.source==='НБУ'?1:0)-(b.source==='НБУ'?1:0))[0];
+ if(ex)return {eur:+ex.eur,date:ex.date,exact:true,source:ex.source};
+ const r=rateFor(date);return r?{eur:+r.eur,date:r.date,exact:false,source:r.source}:null}
+function cardRateMsg(d){
+ const r=cardRate(d);
+ if(!r)return {r:null,msg:'Курс карты ещё не вводился. Введи его вручную (раздел «Курс карты» или прямо в поле).'};
+ return {r,msg:r.exact?'Курс карты на '+d+': '+r.eur.toFixed(4):'На '+d+' курс не вводился, подставлен последний ('+r.date+'): '+r.eur.toFixed(4)+'. Сверь с выпиской Привата и поправь, если списали по другому.'}}
+const PRIVAT_URL='https://next.privat24.ua/exchange-rates';
 
 /* ---------- Home ---------- */
 const viewHome={html(){
@@ -120,10 +116,11 @@ const viewHome={html(){
  <div class="grid g4">
   <div class="card kpi"><b>${act.length}</b><span>товаров в справочнике</span></div>
   <div class="card kpi"><b>${noBuy}</b><span>без закупочной цены</span></div>
-  <div class="card kpi"><b>${last?last.eur.toFixed(4):'—'}</b><span>последний курс EUR${last?' ('+esc(last.date)+')':''}</span></div>
+  <div class="card kpi"><b>${last?last.eur.toFixed(4):'—'}</b><span>последний курс карты EUR${last?' ('+esc(last.date)+')':''}</span></div>
   <div class="card kpi"><b>${DB.price_history.length?DB.price_history.length:0}</b><span>записей в истории цен</span></div>
  </div>
  ${noBuy?`<div class="msg warn">У ${noBuy} товаров не указана закупочная цена — без неё не посчитать наценку. Заполни в разделе «Товары» или загрузи из Excel («Цены»).</div>`:''}
+ ${(()=>{if(!last)return '<div class="msg warn">Курс карты ещё не введён. Открой «Курс карты» и внеси курс из Приват24.</div>';const dd=Math.floor((new Date(today()+'T12:00:00')-new Date(last.date+'T12:00:00'))/864e5);return dd>=3?`<div class="msg warn">Курс карты не обновлялся ${dd} дн. (последний ${esc(last.date)}). Посмотри курс в Приват24 и внеси в <a href="#rates">«Курс карты»</a>.</div>`:''})()}
  ${!p.length?`<div class="msg">Справочник пуст. Загрузи товары: «Настройки» → «Первый импорт товаров с сайта».</div>`:''}
  <div class="card"><h2>Заказы в работе: ${DB.orders.filter(o=>o.status!=='done'&&o.status!=='cancel').length}</h2>${ST.filter(s=>s[0]!=='done'&&s[0]!=='cancel').map(s=>{const n=DB.orders.filter(o=>(o.status||'new')===s[0]).length;return n?`<a href="#orders" class="tag ${s[0]==='new'?'y':''}" style="margin:0 6px 6px 0;text-decoration:none">${s[1]}: ${n}</a>`:''}).join('')||'<div class="note">Пока нет. Создай заказ в разделе «Заказы клиентов».</div>'}</div>
  ${DB.orders.some(o=>o.status==='paid')?`<div class="msg warn">Оплаченных заказов без прихода: <b>${DB.orders.filter(o=>o.status==='paid').length}</b>. <a href="#tobuy">Открыть «К закупке»</a></div>`:''}
@@ -339,38 +336,21 @@ function bindHist(){
 
 /* ---------- Rates ---------- */
 const viewRates={html(){
- const rs=DB.rates.slice().sort((a,b)=>b.date<a.date?-1:1);
- return `<h1>Курсы НБУ</h1><div class="sub">Официальный курс EUR к гривне. Для приходов берётся курс на дату оплаты поставщику, для продаж — на дату оплаты клиента.</div>
- <div class="card"><div class="bar"><input type="date" id="rd" value="${today()}"><button class="btn p" id="rg">Взять курс НБУ на дату</button><span class="sp"></span>
-  <input type="date" id="rf"><input type="date" id="rt" value="${today()}"><button class="btn" id="rp">Загрузить за период</button></div>
-  ${UI.rateMsg?`<div class="msg ${/ошиб|не уд/i.test(UI.rateMsg)?'warn':''}">${esc(UI.rateMsg)}</div>`:''}
-  <div class="bar" style="margin-top:6px"><span class="note">Если автоматом не получилось — введи вручную:</span><input type="date" id="md" value="${today()}"><input type="text" id="mr" placeholder="курс, напр. 48,25" style="width:130px"><button class="btn" id="ms">Сохранить</button></div></div>
+ const rs=DB.rates.slice().sort((a,b)=>b.date<a.date?-1:(b.date>a.date?1:0));
+ return `<h1>Курс карты</h1><div class="sub">Курс EUR к гривне, по которому банк списывает деньги при оплате картой. Для приходов берётся курс на дату оплаты поставщику, для продаж — на дату оплаты клиента.</div>
+ <div class="card"><div class="note" style="margin-bottom:10px">Где смотреть: Приват24 → «Курси валют» → курс для розрахунку карткою (кнопка ниже открывает эту страницу). Бери курс <b>продажи</b> евро: по нему с гривневой карты списываются гривны. Точнее всего курс из выписки по платежу поставщику.</div>
+  <div class="bar"><a class="btn p" href="${PRIVAT_URL}" target="_blank" rel="noopener">Открыть курсы Приват24</a></div>
+  ${UI.rateMsg?`<div class="msg">${esc(UI.rateMsg)}</div>`:''}
+  <div class="bar" style="margin-top:10px"><input type="date" id="md" value="${today()}"><input type="text" id="mr" placeholder="курс, напр. 52,40" style="width:150px"><button class="btn p" id="ms">Сохранить курс</button><span class="note">на одну дату один курс, повторное сохранение заменяет прежний</span></div></div>
  <div class="card scroll"><table><thead><tr><th>Дата</th><th class="r">EUR → UAH</th><th>Источник</th><th></th></tr></thead><tbody>
- ${rs.slice(0,120).map(r=>`<tr><td>${esc(r.date)}</td><td class="r"><b>${Number(r.eur).toFixed(4)}</b></td><td><span class="tag ${r.source==='НБУ'?'':'y'}">${esc(r.source)}</span></td><td class="r"><button class="btn s d" data-del="${esc(r.id)}">Удалить</button></td></tr>`).join('')||'<tr><td colspan="4" class="empty">Курсов пока нет</td></tr>'}
+ ${rs.slice(0,120).map(r=>`<tr><td>${esc(r.date)}</td><td class="r"><b>${Number(r.eur).toFixed(4)}</b></td><td><span class="tag ${r.source==='карта Привата'?'':'y'}">${esc(r.source==='НБУ'?'НБУ (старый)':r.source)}</span></td><td class="r"><button class="btn s d" data-del="${esc(r.id)}">Удалить</button></td></tr>`).join('')||'<tr><td colspan="4" class="empty">Курсов пока нет</td></tr>'}
  </tbody></table></div>`},
 bind(){
- $('#rg').onclick=async()=>{
-  const d=$('#rd').value;if(!d)return;
-  try{const r=await loadRate(d);UI.rateMsg='Курс на '+d+': '+Number(r.eur).toFixed(4)}
-  catch(e){UI.rateMsg='Не удалось получить курс на '+d+' (выходной день или нет связи). Курс НБУ на выходные не публикуется — возьми курс предыдущего рабочего дня или введи вручную.'}
-  render();
- };
- $('#rp').onclick=async()=>{
-  const a=$('#rf').value,b=$('#rt').value;if(!a||!b||a>b)return;
-  let n=0,fail=0;const dt=new Date(a+'T12:00:00'),end=new Date(b+'T12:00:00');
-  const btn=$('#rp');btn.disabled=true;
-  for(;dt<=end;dt.setDate(dt.getDate()+1)){
-   const s=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
-   if(dt.getDay()===0||dt.getDay()===6)continue;
-   if(DB.rates.some(r=>r.date===s))continue;
-   try{await loadRate(s);n++}catch(e){fail++}
-   btn.textContent='Загружено: '+n;
-  }
-  UI.rateMsg='Загружено курсов: '+n+(fail?', не удалось: '+fail:'');render();
- };
  $('#ms').onclick=async()=>{
   const d=$('#md').value,v=num($('#mr').value);if(!d||isNaN(v)||v<=0){alert('Введи дату и курс');return}
-  await save('rates',{id:'m'+d.replace(/-/g,''),date:d,eur:v,source:'вручную'});render();
+  if(v<20||v>200){if(!confirm('Курс '+v+' выглядит необычно. Сохранить?'))return}
+  await save('rates',{id:'k'+d.replace(/-/g,''),date:d,eur:v,source:'карта Привата'});
+  UI.rateMsg='Курс на '+d+' сохранён: '+v.toFixed(4);render();
  };
  $$('[data-del]').forEach(b=>b.onclick=async()=>{if(confirm('Удалить курс?')){await removeIds('rates',[b.dataset.del]);render()}});
 }};
@@ -508,7 +488,7 @@ bind(){
  $('#oad').onclick=()=>{location.hash='#order/new'};
  $$('tbody tr[data-id]').forEach(tr=>tr.onclick=()=>{location.hash='#order/'+tr.dataset.id});
  $('#oex').onclick=()=>{
-  const rows=[];DB.orders.forEach(o=>{const ls=orderLines(o.id);(ls.length?ls:[{}]).forEach(l=>rows.push({'№':o.number,Дата:o.date,Клиент:clientName(o.client_id),Статус:stName(o.status),'Скидка %':o.discount,Артикул:(DB.products.find(p=>p.id===l.product_id)||{}).article||'',Товар:l.name||'',Кол:l.qty,'Цена €':l.price_eur,'Итого заказ €':o.total_eur,'Дата оплаты':o.pay_date,'Курс НБУ':o.rate,'Оплачено ₴':o.pay_uah,Перевозчик:o.carrier}))});
+  const rows=[];DB.orders.forEach(o=>{const ls=orderLines(o.id);(ls.length?ls:[{}]).forEach(l=>rows.push({'№':o.number,Дата:o.date,Клиент:clientName(o.client_id),Статус:stName(o.status),'Скидка %':o.discount,Артикул:(DB.products.find(p=>p.id===l.product_id)||{}).article||'',Товар:l.name||'',Кол:l.qty,'Цена €':l.price_eur,'Итого заказ €':o.total_eur,'Дата оплаты':o.pay_date,'Курс карты':o.rate,'Оплачено ₴':o.pay_uah,Перевозчик:o.carrier}))});
   const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows),'Заказы');XLSX.writeFile(wb,'bella_zakazy_'+today()+'.xlsx');
  };
 }};
@@ -556,10 +536,8 @@ function recalc(){
 }
 async function fetchOrderRate(){
  const d=OD.o.pay_date;if(!d)return;
- let msg;
- try{const r=await loadRate(d);OD.o.rate=r.eur;msg='Курс НБУ на '+d+': '+Number(r.eur).toFixed(4)}
- catch(e){const r=rateFor(d);if(r){OD.o.rate=r.eur;msg='Курс на '+d+' получить не удалось, взят ближайший прежний ('+r.date+'): '+Number(r.eur).toFixed(4)+'. Можно поправить вручную.'}else{msg='Курс получить не удалось — введи вручную.'}}
- $('#orate').value=OD.o.rate;$('#ratemsg').textContent=msg;recalc();
+ const x=cardRateMsg(d);if(x.r)OD.o.rate=x.r.eur;
+ $('#orate').value=OD.o.rate;$('#ratemsg').textContent=x.msg;recalc();
 }
 const viewOrder={html(){
  initOrder(routeArg());
@@ -584,7 +562,7 @@ const viewOrder={html(){
  </div><div class="bar" style="margin:12px 0 0"><button class="btn s" id="nxt" type="button">Следующий этап →</button></div></div>
  <div class="card"><h2>Оплата клиента</h2><div class="grid g2">
   <div class="f"><label>Дата оплаты</label><input type="date" data-o="pay_date" value="${esc(o.pay_date)}"></div>
-  <div class="f"><label>Курс НБУ EUR→UAH</label><input type="text" id="orate" data-o="rate" value="${o.rate===''||o.rate==null?'':esc(o.rate)}"></div>
+  <div class="f"><label>Курс карты EUR→UAH</label><input type="text" id="orate" data-o="rate" value="${o.rate===''||o.rate==null?'':esc(o.rate)}"></div>
   <div class="f" style="grid-column:1/-1"><div class="note" id="ratemsg"></div></div>
   <div class="f"><label>К оплате по курсу</label><div style="padding:9px 0;font-weight:600" id="tuah"></div></div>
   <div class="f"><label>Фактически получено, ₴</label><input type="text" id="opu" data-o="pay_uah" value="${o.pay_uah===''||o.pay_uah==null?'':esc(o.pay_uah)}"></div>
@@ -696,7 +674,7 @@ bind(){
  $('#pad2').onclick=()=>{UI.draft=null;location.hash='#purchase/new'};
  $$('tbody tr[data-id]').forEach(tr=>tr.onclick=()=>{location.hash='#purchase/'+tr.dataset.id});
  $('#pex2').onclick=()=>{
-  const rows=[];DB.purchases.forEach(o=>{const ls=DB.purchase_lines.filter(l=>l.purchase_id===o.id);const f=purchaseFactor(o.id);(ls.length?ls:[{}]).forEach(l=>{const od=DB.orders.find(x=>x.id===l.order_id);rows.push({'№':o.number,'Дата оплаты':o.date,Поставщик:supplierName(o.supplier_id),Статус:pstName(o.status),Артикул:(DB.products.find(p=>p.id===l.product_id)||{}).article||'',Товар:l.name||'',Кол:l.qty,'Цена €':l.price_eur,'Себестоимость с доставкой €':l.price_eur===undefined?'':r2(l.price_eur*f),'Заказ клиента':od?od.number:'','Доставка приход €':o.delivery_eur,'Итого приход €':o.total_eur,'Курс НБУ':o.rate})})});
+  const rows=[];DB.purchases.forEach(o=>{const ls=DB.purchase_lines.filter(l=>l.purchase_id===o.id);const f=purchaseFactor(o.id);(ls.length?ls:[{}]).forEach(l=>{const od=DB.orders.find(x=>x.id===l.order_id);rows.push({'№':o.number,'Дата оплаты':o.date,Поставщик:supplierName(o.supplier_id),Статус:pstName(o.status),Артикул:(DB.products.find(p=>p.id===l.product_id)||{}).article||'',Товар:l.name||'',Кол:l.qty,'Цена €':l.price_eur,'Себестоимость с доставкой €':l.price_eur===undefined?'':r2(l.price_eur*f),'Заказ клиента':od?od.number:'','Доставка приход €':o.delivery_eur,'Итого приход €':o.total_eur,'Курс карты':o.rate})})});
   const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows),'Приходы');XLSX.writeFile(wb,'bella_prihody_'+today()+'.xlsx');
  };
 }};
@@ -764,10 +742,9 @@ function pdRecalc(){
  $('#pupdtxt').textContent='Обновить закупочные цены в справочнике ('+diffs.length+' поз. отличаются)';
 }
 async function fetchPurRate(){
- const d=PD.o.date;if(!d)return;let msg;
- try{const r=await loadRate(d);PD.o.rate=r.eur;msg='Курс НБУ на '+d+': '+Number(r.eur).toFixed(4)}
- catch(e){const r=rateFor(d);if(r){PD.o.rate=r.eur;msg='Курс на '+d+' получить не удалось, взят ближайший прежний ('+r.date+'): '+Number(r.eur).toFixed(4)+'. Можно поправить вручную.'}else{msg='Курс получить не удалось — введи вручную.'}}
- $('#prate').value=PD.o.rate;$('#pratemsg').textContent=msg;pdRecalc();
+ const d=PD.o.date;if(!d)return;
+ const x=cardRateMsg(d);if(x.r)PD.o.rate=x.r.eur;
+ $('#prate').value=PD.o.rate;$('#pratemsg').textContent=x.msg;pdRecalc();
 }
 const viewPurchase={html(){
  initPurchase(routeArg());
@@ -786,8 +763,8 @@ const viewPurchase={html(){
   <div class="f" style="grid-column:1/-1"><label>Заметка</label><textarea data-o="note" rows="2">${esc(o.note)}</textarea></div>
  </div></div>
  <div class="card"><h2>Курс и итоги</h2><div class="grid g2">
-  <div class="f"><label>Курс НБУ EUR→UAH на дату оплаты</label><input type="text" id="prate" data-o="rate" value="${o.rate===''||o.rate==null?'':esc(o.rate)}"></div>
-  <div class="f"><label>&nbsp;</label><button class="btn s" id="prg" type="button">Взять курс НБУ на дату</button></div>
+  <div class="f"><label>Курс карты EUR→UAH на дату оплаты</label><input type="text" id="prate" data-o="rate" value="${o.rate===''||o.rate==null?'':esc(o.rate)}"></div>
+  <div class="f"><label>&nbsp;</label><button class="btn s" id="prg" type="button">Подставить курс карты</button></div>
   <div class="f" style="grid-column:1/-1"><div class="note" id="pratemsg"></div></div>
   <div><div class="note">Товары</div><b id="pgoods"></b></div><div><div class="note">Доставка</div><b id="pdel"></b></div>
   <div><div class="note">Итого €</div><b id="ptot" style="font:700 22px Inter,system-ui,sans-serif"></b></div><div><div class="note">Итого по курсу</div><b id="ptuah"></b></div>
@@ -859,8 +836,8 @@ bind(){
 
 /* ---------- Invoices / Sales ---------- */
 const I18={
- ru:{inv:'Накладная',no:'№',date:'Дата',seller:'Продавец',buyer:'Покупатель',art:'Артикул',item:'Товар',qty:'Кол-во',price:'Цена, €',sum:'Сумма, €',sub:'Сумма',disc:'Скидка',total:'Итого, €',rate:'Курс НБУ EUR→UAH на',topay:'К оплате, ₴',paid:'Оплачено, ₴',method:'Способ оплаты',carrier:'Перевозчик',note:'Примечание',pm:{card:'На карту',cash:'Наличные',other:'Другое'},thanks:'Спасибо за заказ!',order:'Заказ',phone:'Тел.',city:'Город',addr:'Адрес'},
- uk:{inv:'Накладна',no:'№',date:'Дата',seller:'Продавець',buyer:'Покупець',art:'Артикул',item:'Товар',qty:'К-сть',price:'Ціна, €',sum:'Сума, €',sub:'Сума',disc:'Знижка',total:'Разом, €',rate:'Курс НБУ EUR→UAH на',topay:'До сплати, ₴',paid:'Сплачено, ₴',method:'Спосіб оплати',carrier:'Перевізник',note:'Примітка',pm:{card:'На картку',cash:'Готівка',other:'Інше'},thanks:'Дякуємо за замовлення!',order:'Замовлення',phone:'Тел.',city:'Місто',addr:'Адреса'}
+ ru:{inv:'Накладная',no:'№',date:'Дата',seller:'Продавец',buyer:'Покупатель',art:'Артикул',item:'Товар',qty:'Кол-во',price:'Цена, €',sum:'Сумма, €',sub:'Сумма',disc:'Скидка',total:'Итого, €',rate:'Курс EUR→UAH на',topay:'К оплате, ₴',paid:'Оплачено, ₴',method:'Способ оплаты',carrier:'Перевозчик',note:'Примечание',pm:{card:'На карту',cash:'Наличные',other:'Другое'},thanks:'Спасибо за заказ!',order:'Заказ',phone:'Тел.',city:'Город',addr:'Адрес'},
+ uk:{inv:'Накладна',no:'№',date:'Дата',seller:'Продавець',buyer:'Покупець',art:'Артикул',item:'Товар',qty:'К-сть',price:'Ціна, €',sum:'Сума, €',sub:'Сума',disc:'Знижка',total:'Разом, €',rate:'Курс EUR→UAH на',topay:'До сплати, ₴',paid:'Сплачено, ₴',method:'Спосіб оплати',carrier:'Перевізник',note:'Примітка',pm:{card:'На картку',cash:'Готівка',other:'Інше'},thanks:'Дякуємо за замовлення!',order:'Замовлення',phone:'Тел.',city:'Місто',addr:'Адреса'}
 };
 UI.invLang='ru';UI.sales={month:''};
 function nextInvNumber(){let m=0;DB.invoices.forEach(o=>{const n=parseInt(String(o.number).replace(/\D/g,''),10);if(n>m)m=n});return 'INV-'+String(m+1).padStart(4,'0')}
@@ -884,7 +861,7 @@ bind(){
  $('#smo').onchange=e=>{UI.sales.month=e.target.value;render()};
  $$('tbody tr[data-id]').forEach(tr=>tr.onclick=()=>{location.hash='#invoice/'+tr.dataset.id});
  $('#sex').onclick=()=>{
-  const rows=DB.invoices.map(i=>({i,o:DB.orders.find(x=>x.id===i.order_id)})).filter(x=>x.o).map(({i,o})=>({'№ накладной':i.number,Дата:i.date,Заказ:o.number,Клиент:clientName(o.client_id),'Сумма €':o.total_eur,'Дата оплаты':o.pay_date,'Курс НБУ':o.rate,'Оплачено ₴':o.pay_uah,Статус:stName(o.status)}));
+  const rows=DB.invoices.map(i=>({i,o:DB.orders.find(x=>x.id===i.order_id)})).filter(x=>x.o).map(({i,o})=>({'№ накладной':i.number,Дата:i.date,Заказ:o.number,Клиент:clientName(o.client_id),'Сумма €':o.total_eur,'Дата оплаты':o.pay_date,'Курс карты':o.rate,'Оплачено ₴':o.pay_uah,Статус:stName(o.status)}));
   const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows),'Продажи');XLSX.writeFile(wb,'bella_prodazhi_'+today()+'.xlsx');
  };
 }};
@@ -1066,7 +1043,7 @@ function dlvSumHtml(){
  ${tg>0?`<tr><td>Набрано к цели ${eur(tg)}</td><td class="r">${pctOf(s.rev,tg)}</td></tr>`:''}
  </tbody></table>
  ${d.status==='plan'?'<div class="msg warn">Статус «Собираем»: это расчёт для себя. В себестоимость заказов и прибыль агентам доставка попадёт после перевода в «Оплачена перевозчику».</div>':''}
- ${d.cur==='UAH'&&isNaN(s.c.eur)?'<div class="msg warn">Укажи курс НБУ (кнопка «Взять курс НБУ на дату»), чтобы пересчитать гривны в евро.</div>':''}
+ ${d.cur==='UAH'&&isNaN(s.c.eur)?'<div class="msg warn">Укажи курс карты (кнопка «Подставить курс карты»), чтобы пересчитать гривны в евро.</div>':''}
  <div class="note" style="margin-top:8px">Выручка и закупка считаются по заказам, чьи товары едут в выбранных приходах.</div>`;
 }
 const viewDelivery={html(){
@@ -1085,7 +1062,7 @@ const viewDelivery={html(){
  <div class="f"><label>${wt?'Вес, кг':'Количество посылок'}</label><input type="text" data-d="qty" value="${esc(d.qty)}"></div>
  <div class="f"><label>${wt?'Цена за 1 кг':'Цена за 1 посылку'}</label><input type="text" data-d="unit" value="${esc(d.unit)}"></div>
  <div class="f"><label>Валюта оплаты</label>${sel('cur',[['EUR','€ евро'],['UAH','₴ гривны']])}</div>
- ${d.cur==='UAH'?`<div class="f"><label>Курс НБУ EUR→UAH на дату оплаты</label><div class="bar" style="margin:0"><input type="text" data-d="rate" id="drate" value="${esc(d.rate)}" style="width:110px"><button class="btn s" type="button" id="dnbu">Взять курс НБУ на дату</button></div></div>`:''}
+ ${d.cur==='UAH'?`<div class="f"><label>Курс карты EUR→UAH на дату оплаты</label><div class="bar" style="margin:0"><input type="text" data-d="rate" id="drate" value="${esc(d.rate)}" style="width:110px"><button class="btn s" type="button" id="dnbu">Подставить курс карты</button></div></div>`:''}
  <div class="f"><label>Цель: выручка заказов, € (необязательно)</label><input type="text" data-d="target" value="${esc(d.target)}" placeholder="сколько хочешь набрать"></div>
  <div class="f" style="grid-column:1/-1"><label>Заметка</label><textarea data-d="note" rows="2">${esc(d.note)}</textarea></div>
  </div></div>
@@ -1100,12 +1077,12 @@ bind(){
   if(t.dataset.dp){const a=d.purchases=d.purchases||[];const i=a.indexOf(t.dataset.dp);if(t.checked&&i<0)a.push(t.dataset.dp);if(!t.checked&&i>=0)a.splice(i,1);upd()}
   else if(t.dataset.d&&t.tagName==='SELECT'){d[t.dataset.d]=t.value;setTimeout(render,0)}
  });
- const nb=$('#dnbu');if(nb)nb.onclick=async()=>{try{const v=await fetchNbu(d.date);d.rate=String(v);$('#drate').value=d.rate;upd()}catch(e){alert('Не удалось получить курс НБУ. Введи вручную.')}};
+ const nb=$('#dnbu');if(nb)nb.onclick=()=>{const x=cardRateMsg(d.date);if(!x.r){alert(x.msg);return}d.rate=String(x.r.eur);$('#drate').value=d.rate;upd();toast(x.msg)};
  $('#dsv').onclick=async()=>{
   if(!String(d.number).trim()){alert('Укажи номер');return}
   if(dlvAll().some(x=>x.number===d.number&&x.id!==d.id)){alert('Номер '+d.number+' уже есть. Измени номер.');return}
   if(isNaN(num(d.qty))||isNaN(num(d.unit))){alert('Заполни количество (вес или посылки) и цену');return}
-  if(d.cur==='UAH'&&d.status!=='plan'&&!(num(d.rate)>0)){try{d.rate=String(await fetchNbu(d.date))}catch(e){alert('Не удалось получить курс НБУ. Введи курс вручную.');return}}
+  if(d.cur==='UAH'&&d.status!=='plan'&&!(num(d.rate)>0)){const x=cardRateMsg(d.date);if(!x.r){alert('Укажи курс карты вручную.');return}d.rate=String(x.r.eur)}
   if(d.status!=='plan'&&!(d.purchases||[]).length&&!confirm('Не выбран ни один приход, доставка никуда не распределится. Сохранить?'))return;
   await setSetting('dlv:'+d.id,JSON.stringify(d));DD=null;location.hash='#deliveries';toast('Доставка сохранена');
  };
